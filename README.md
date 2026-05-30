@@ -28,7 +28,11 @@ A partir do nível 6, o motor pega o jogo base e vai **mutando** a cada nível: 
 | `↓` ou `S` | Colocar **parede de amor** 🧱 |
 | `R` | Reiniciar o nível |
 
-**No celular (toque):** botões na tela — andar, pular, segurar o ❤ para carregar a explosão, e a parede 🧱.
+**No celular (toque):**
+
+- **Joystick flutuante** — encoste e arraste em qualquer lugar da tela; o controle aparece onde você pôs o dedo e some quando solta. Arraste para os lados para **andar**.
+- **Segundo dedo** — com outro dedo, arraste para **cima = pular** (de novo = duplo/triplo) e para **baixo = soltar a barreira** 🧱.
+- **❤ (canto)** — segure para carregar e solte para a **explosão de amor** 💥.
 
 **Objetivo:** apaixonar todos os tristes do nível. Em alguns níveis o objetivo é **coletar corações** (eles fogem de você!) e levar até a **Máquina** 🪨.
 

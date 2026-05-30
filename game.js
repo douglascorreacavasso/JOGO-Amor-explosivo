@@ -351,7 +351,7 @@ function update(dt){
     if(!keys.left&&!keys.right) player.vx*=phFric;
     player.vx=clamp(player.vx,-mm*slow,mm*slow);
     if(player.onGround){ player.coyote=COYOTE; } else { player.coyote=Math.max(0,player.coyote-dt); }
-    const pressed=keys.jump&&!player.prevJump;
+    const pressed=(keys.jump&&!player.prevJump)||jumpQueued;
     if(pressed) player.jumpBuf=JUMP_BUF; else player.jumpBuf=Math.max(0,player.jumpBuf-dt);
     if(player.jumpBuf>0 && (player.onGround||player.coyote>0)){
       player.vy=jv; player.onGround=false; player.jumps=1; player.coyote=0; player.jumpBuf=0; beep(440,0.09,'square',0.04);
@@ -359,7 +359,7 @@ function update(dt){
       player.vy=jv*0.92; player.jumps++; beep(580,0.09,'square',0.045);
       for(let i=0;i<10;i++){const a=rand(0,6.28);particles.push({x:player.x+player.w/2,y:player.y+player.h,vx:Math.cos(a)*2,vy:Math.sin(a)*1.4+1.2,life:1,decay:.04,s:rand(5,9),col:'#ff8fab'});}
     }
-    player.prevJump=keys.jump;
+    player.prevJump=keys.jump; jumpQueued=false;
     if(keys.charge&&player.stam>=player.blastCost){player.charging=true;player.charge=Math.min(1,player.charge+dt*0.85);}
     player.x=clamp(player.x+player.vx,0,WORLD_W-player.w);
     applyVertical(player); carry(player);
@@ -551,6 +551,11 @@ function draw(){
     ctx.save(); ctx.fillStyle='#fff'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center'; ctx.shadowColor='#000'; ctx.shadowBlur=6;
     ctx.fillText('💖 '+carrying+' → 🪨', psx, psy-12); ctx.restore();
   }
+  if(joy){ ctx.save();
+    ctx.globalAlpha=.35; ctx.lineWidth=3; ctx.strokeStyle='#fff'; ctx.beginPath(); ctx.arc(joy.ox,joy.oy,JOY_R,0,6.2832); ctx.stroke();
+    ctx.globalAlpha=.75; ctx.shadowColor='#ff2e63'; ctx.shadowBlur=12; ctx.fillStyle='#ff5d8f';
+    ctx.beginPath(); ctx.arc(joy.x,joy.y,26,0,6.2832); ctx.fill();
+    ctx.restore(); }
 }
 
 function drawRock(r){ ctx.save(); const g=ctx.createRadialGradient(r.x+r.w/2,r.y+r.h/2,5,r.x+r.w/2,r.y+r.h/2,90);
@@ -674,7 +679,7 @@ function showMenu(){ overlay.classList.remove('hidden');
   const sv=loadProgress();
   const intro='<p>Escale a montanha cheia de plataformas e apaixone todo mundo. 5 níveis feitos à mão; do 6 em diante, um motor distorce a realidade — cada nível mais estranho e mais difícil (No Man\'s Sky / Backrooms), com monstros entrando lá pra frente. Você tem vida ❤ e seus poderes crescem junto.</p>';
   const hint = MOBILE
-    ? '<p class="hint">◀ ▶ andar · ⤒ pular · ❤ segurar = explosão de amor 💥 · 🧱 parede</p>'
+    ? '<p class="hint">Encoste e arraste em qualquer lugar = <b>joystick</b> (move pros lados).<br>2º dedo: arraste ↑ = <b>pulo</b> · ↓ = <b>barreira</b> 🧱 · segure ❤ = <b>explosão</b> 💥</p>'
     : '<div class="keys"><b>← →</b> andar · <b>↑</b> pular (no ar = duplo/triplo) · <b>ESPAÇO</b> explosão 💥 · <b>↓</b> parede 🧱</div>';
   const cont = (sv && sv.level) ? '<button id="cont">▶ CONTINUAR · nível '+sv.level+' ('+(sv.mode==='infinite'?'Infinito':'Aventura')+')</button>' : '';
   overlay.innerHTML='<h1>AMOR EXPLOSIVO</h1>'+intro+hint+
@@ -700,17 +705,51 @@ function setKey(e,down){ const k=e.key.toLowerCase();
 window.addEventListener('keydown',e=>setKey(e,true));
 window.addEventListener('keyup',e=>setKey(e,false));
 function bindTouch(id,on,off){ const el=document.getElementById(id); if(!el)return;
-  const p=e=>{e.preventDefault();on();}, r=e=>{e.preventDefault();off();};
+  const p=e=>{e.preventDefault();e.stopPropagation();on();}, r=e=>{e.preventDefault();e.stopPropagation();off();};
   el.addEventListener('touchstart',p,{passive:false}); el.addEventListener('touchend',r,{passive:false});
   el.addEventListener('touchcancel',r,{passive:false});
   el.addEventListener('mousedown',p); el.addEventListener('mouseup',r); el.addEventListener('mouseleave',r); }
-bindTouch('bL',()=>keys.left=true,()=>keys.left=false);
-bindTouch('bR',()=>keys.right=true,()=>keys.right=false);
-bindTouch('bJump',()=>keys.jump=true,()=>keys.jump=false);
-bindTouch('bWall',()=>{ if(state==='play') placeWall(); },()=>{});
-bindTouch('bCharge',()=>{ keys.charge=true; },
-  ()=>{ if(keys.charge&&state==='play'&&player.charging&&player.stam>=player.blastCost) fireBlast();
-        keys.charge=false; player.charging=false; player.charge=0; });
+
+// ===== Controles de toque (celular): joystick flutuante + 2º dedo p/ pular/barreira =====
+let joy=null, gesture=null, jumpQueued=false;
+const JOY_R=64, JOY_DZ=15, SWIPE=30;
+function requestJump(){ jumpQueued=true; }
+function onCharge(){ keys.charge=true; }
+function offCharge(){ if(keys.charge&&state==='play'&&player.charging&&player.stam>=player.blastCost) fireBlast();
+  keys.charge=false; player.charging=false; player.charge=0; }
+bindTouch('bCharge', onCharge, offCharge);   // ❤ explosão (segura e solta)
+
+if(MOBILE){
+  const wrap=document.getElementById('wrap');
+  const onCharBtn=t=>!!(t.target&&t.target.closest&&t.target.closest('#bCharge'));
+  wrap.addEventListener('touchstart',e=>{
+    for(const t of e.changedTouches){ if(onCharBtn(t))continue;
+      if(!joy) joy={id:t.identifier, ox:t.clientX, oy:t.clientY, x:t.clientX, y:t.clientY};
+      else if(!gesture && t.identifier!==joy.id) gesture={id:t.identifier, sy:t.clientY, did:null}; }
+    e.preventDefault();
+  },{passive:false});
+  wrap.addEventListener('touchmove',e=>{
+    for(const t of e.changedTouches){
+      if(joy && t.identifier===joy.id){
+        let dx=t.clientX-joy.ox, dy=t.clientY-joy.oy; const m=Math.hypot(dx,dy);
+        if(m>JOY_R){ dx*=JOY_R/m; dy*=JOY_R/m; }
+        joy.x=joy.ox+dx; joy.y=joy.oy+dy;
+        keys.left=dx<-JOY_DZ; keys.right=dx>JOY_DZ;
+      } else if(gesture && t.identifier===gesture.id){
+        const dy=t.clientY-gesture.sy;
+        if(dy<-SWIPE && gesture.did!=='up'){ requestJump(); gesture.did='up'; }       // 2º dedo p/ cima = pulo
+        else if(dy>SWIPE && gesture.did!=='down'){ if(state==='play')placeWall(); gesture.did='down'; } // p/ baixo = barreira
+        else if(Math.abs(dy)<10){ gesture.did=null; }   // voltou ao centro → pode repetir (pulo duplo/triplo)
+      }
+    }
+    e.preventDefault();
+  },{passive:false});
+  const endTouch=e=>{ for(const t of e.changedTouches){
+      if(joy && t.identifier===joy.id){ joy=null; keys.left=keys.right=false; }
+      else if(gesture && t.identifier===gesture.id) gesture=null; } };
+  wrap.addEventListener('touchend',endTouch,{passive:false});
+  wrap.addEventListener('touchcancel',endTouch,{passive:false});
+}
 
 let last=performance.now();
 function loop(now){ let dt=(now-last)/1000; last=now; dt=Math.min(dt,0.05);
