@@ -1,0 +1,5 @@
+/* Versão CELULAR: botões de toque, tela travada (sem rolar/zoom) */
+html, body { position:fixed; inset:0; overflow:hidden; overscroll-behavior:none; touch-action:none; }
+#touch { display:block; }
+#hud #count { font-size:16px; }
+#obj { font-size:11.5px; }

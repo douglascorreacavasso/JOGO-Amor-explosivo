@@ -1,0 +1,3 @@
+/* Versão DESKTOP: teclado, sem botões de toque */
+#touch { display:none !important; }
+body { cursor:default; }

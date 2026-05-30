@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Amor Explosivo — Celular</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style-mobile.css">
+</head>
+<body data-platform="mobile">
+<div id="wrap">
+  <canvas id="game"></canvas>
+  <div id="hud"><div id="count">💕 0 / 0<small>apaixonados</small></div><div id="obj"></div></div>
+  <div id="bars">
+    <span class="barLbl">AMOR</span><div class="bar"><div id="amorFill" class="fill"></div></div>
+    <span class="barLbl">CANSAÇO</span><div class="bar"><div id="stamFill" class="fill"></div></div>
+  </div>
+  <div id="touch">
+    <div class="tbtn" id="bL">◀</div><div class="tbtn" id="bR">▶</div>
+    <div class="tbtn" id="bJump">⤒</div><div class="tbtn" id="bWall">🧱</div>
+    <div class="tbtn" id="bCharge">❤</div>
+  </div>
+  <div id="overlay"></div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
