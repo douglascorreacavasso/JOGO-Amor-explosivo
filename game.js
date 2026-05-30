@@ -551,10 +551,27 @@ function draw(){
     ctx.save(); ctx.fillStyle='#fff'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center'; ctx.shadowColor='#000'; ctx.shadowBlur=6;
     ctx.fillText('💖 '+carrying+' → 🪨', psx, psy-12); ctx.restore();
   }
-  if(joy){ ctx.save();
-    ctx.globalAlpha=.35; ctx.lineWidth=3; ctx.strokeStyle='#fff'; ctx.beginPath(); ctx.arc(joy.ox,joy.oy,JOY_R,0,6.2832); ctx.stroke();
-    ctx.globalAlpha=.75; ctx.shadowColor='#ff2e63'; ctx.shadowBlur=12; ctx.fillStyle='#ff5d8f';
-    ctx.beginPath(); ctx.arc(joy.x,joy.y,26,0,6.2832); ctx.fill();
+  if(joy){ const ox=joy.ox, oy=joy.oy, R=JOY_R; ctx.save();
+    // base (anel escuro)
+    ctx.globalAlpha=0.9; ctx.fillStyle='rgba(22,20,38,0.5)'; ctx.beginPath(); ctx.arc(ox,oy,R,0,6.2832); ctx.fill();
+    ctx.lineWidth=4; ctx.strokeStyle='rgba(170,180,220,0.55)'; ctx.beginPath(); ctx.arc(ox,oy,R,0,6.2832); ctx.stroke();
+    // ticks tipo engrenagem
+    ctx.strokeStyle='rgba(150,160,205,0.40)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(ox,oy,R*0.62,0,6.2832); ctx.stroke();
+    for(let i=0;i<24;i++){ const a=i/24*6.2832, r1=R*0.5, r2=R*0.62;
+      ctx.beginPath(); ctx.moveTo(ox+Math.cos(a)*r1,oy+Math.sin(a)*r1); ctx.lineTo(ox+Math.cos(a)*r2,oy+Math.sin(a)*r2); ctx.stroke(); }
+    // setas de direção (N E S O)
+    ctx.fillStyle='rgba(200,212,255,0.75)';
+    for(const dd of [[0,-1],[1,0],[0,1],[-1,0]]){ const ax=ox+dd[0]*R*0.83, ay=oy+dd[1]*R*0.83, s=7;
+      ctx.save(); ctx.translate(ax,ay); ctx.rotate(Math.atan2(dd[1],dd[0])+Math.PI/2);
+      ctx.beginPath(); ctx.moveTo(0,-s); ctx.lineTo(-s*0.85,s*0.65); ctx.lineTo(s*0.85,s*0.65); ctx.closePath(); ctx.fill(); ctx.restore(); }
+    // bolinha de vidro (knob)
+    const kx=joy.x, ky=joy.y, kr=R*0.42;
+    const g=ctx.createRadialGradient(kx-kr*0.3,ky-kr*0.4,kr*0.1,kx,ky,kr);
+    g.addColorStop(0,'rgba(225,247,255,0.98)'); g.addColorStop(0.5,'rgba(120,190,235,0.96)'); g.addColorStop(1,'rgba(58,108,168,0.96)');
+    ctx.fillStyle=g; ctx.shadowColor='rgba(90,170,235,0.85)'; ctx.shadowBlur=16;
+    ctx.beginPath(); ctx.arc(kx,ky,kr,0,6.2832); ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.ellipse(kx-kr*0.25,ky-kr*0.35,kr*0.42,kr*0.26,-0.5,0,6.2832); ctx.fill();
     ctx.restore(); }
 }
 

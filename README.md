@@ -28,7 +28,7 @@ A partir do nível 6, o motor pega o jogo base e vai **mutando** a cada nível: 
 | `↓` ou `S` | Colocar **parede de amor** 🧱 |
 | `R` | Reiniciar o nível |
 
-**No celular (toque):**
+**No celular (toque):** _vire o celular na horizontal (deitado) para jogar — o jogo avisa se estiver em pé._
 
 - **Joystick flutuante** — encoste e arraste em qualquer lugar da tela; o controle aparece onde você pôs o dedo e some quando solta. Arraste para os lados para **andar**.
 - **Segundo dedo** — com outro dedo, arraste para **cima = pular** (de novo = duplo/triplo) e para **baixo = soltar a barreira** 🧱.
