@@ -2,7 +2,7 @@
 
 > Um jogo de plataforma feito em **HTML5 Canvas + JavaScript puro** (sem nenhuma biblioteca), que roda direto no navegador — no PC e no celular.
 
-Escale a montanha cheia de plataformas, carregue a sua **explosão de amor** e apaixone todo mundo. Os 5 primeiros níveis são feitos à mão; do **nível 6 em diante**, um **motor procedural** distorce a realidade — cada nível fica mais estranho e mais difícil, no estilo **No Man's Sky / Backrooms**.
+Escale a montanha cheia de plataformas, carregue a sua **explosão de amor** e apaixone todo mundo. Os **5 primeiros níveis** são feitos à mão; do **nível 6 em diante**, os níveis são **gerados aleatoriamente** por um motor procedural, cada um mais difícil que o anterior.
 
 Feito por **Douglas**.
 

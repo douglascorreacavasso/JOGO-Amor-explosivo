@@ -49,25 +49,25 @@ function genLevel(n){
   const d=n-5;                                  // profundidade procedural (1..)
   const dd=Math.min(d,900);
   const isCollect=(d%9===0);
-  const playerSpeed=5.8+Math.min(dd*0.03,2.6);  // o BOM cresce junto
-  const playerJump=BASE_JUMP*(1+Math.min(dd*0.008,0.5));
+  const playerSpeed=6.1+Math.min(dd*0.03,2.6);     // começa no nível 5 e cresce
+  const playerJump=-16.2*(1+Math.min(dd*0.006,0.4));
   const cfg={
     type: isCollect?'collect':'love',
-    w: Math.min(1700+dd*10, 2500),
-    h: Math.min(2200+dd*46, 5500),
+    w: Math.min(2000+dd*8, 2600),
+    h: Math.min(3500+dd*40, 6000),
     grav: clamp(0.62*(1+0.18*Math.sin(d*0.9)+Math.min(d*0.004,0.18)), 0.5, 0.86), // oscila a cada nível
     move: MOVE, fric: FRICTION,
     bandH: clamp(70-Math.floor(dd/50)+Math.round(Math.min(dd*0.5,5)*Math.sin(d*1.3)), 58, 74),
     slot: clamp(248+Math.round(16*Math.sin(d*0.7)), 218, 274),
     baseJump: playerJump,
     playerSpeed, playerJump,
-    maxJumps: d>=8?3:2,
+    maxJumps: 3,
     maxHp: Math.min(3+Math.floor(dd/10), 10),         // pontos de vida crescem
     blastCost: Math.max(10, 18-Math.floor(dd/40)),
     stamRegen: 16+Math.min(Math.floor(dd/10),12),
-    moving: Math.min(Math.floor(dd*0.5), 14),
-    mvSpeed: Math.min(0.9+dd*0.025, 2.4),
-    blocks: Math.min(3+Math.floor(dd/4), 11),
+    moving: Math.min(11+Math.floor(dd*0.4), 18),
+    mvSpeed: Math.min(1.5+dd*0.02, 2.8),
+    blocks: Math.min(6+Math.floor(dd/5), 12),
     follow: 0, npc:0, target:0,
     chaserCount:0, shooterCount:0, eaterCount:0,
     monsterHp:Math.min(1+Math.floor(dd/14), 6),
@@ -78,15 +78,13 @@ function genLevel(n){
     hue:(n*47)%360, vignette:Math.min(dd*0.01,0.5),
   };
   if(isCollect){ cfg.target=Math.min(80+dd, 220); }
-  else { cfg.npc=Math.min(8+Math.floor(dd*0.7), 30);
-    cfg.follow=Math.min(2.2+dd*0.045, playerSpeed*0.7);
-    if(d>=6)  cfg.chaserCount  = Math.min(1+Math.floor((d-6)/3), 8);   // perseguidor: nível 11+
-    if(d>=11) cfg.shooterCount = Math.min(1+Math.floor((d-11)/6), 5);  // atirador de corações negros: 16+
-    if(d>=17) cfg.eaterCount   = Math.min(1+Math.floor((d-17)/9), 3);  // comedor (come tristes e cresce): 22+
+  else { cfg.npc=Math.min(22+Math.floor(dd*0.6), 36);
+    cfg.follow=Math.min(3.0+dd*0.04, playerSpeed*0.7);
+    if(d>=6)  cfg.chaserCount  = Math.min(1+Math.floor((d-6)/3), 8);
+    if(d>=11) cfg.shooterCount = Math.min(1+Math.floor((d-11)/6), 5);
+    if(d>=17) cfg.eaterCount   = Math.min(1+Math.floor((d-17)/9), 3);
   }
-  const tot=cfg.chaserCount+cfg.shooterCount+cfg.eaterCount;
-  let tag=''; if(tot){ tag=' · 👹×'+tot; if(cfg.shooterCount&&cfg.shooterRate<0.6)tag+=' (METRALHADORA!)'; else if(cfg.shooterCount)tag+=' (atiradores)'; if(cfg.eaterCount)tag+=' (comedores)'; }
-  cfg.label='NÍVEL '+n+' · prof '+d+(isCollect?' — COLETA':'')+tag+' — arquitetura distorcida';
+  cfg.label='NÍVEL '+n+' · gerado'+(isCollect?' · coleta':'');
   return cfg;
 }
 
@@ -678,7 +676,6 @@ function levelClear(){ state='end'; overlay.classList.remove('hidden');
       '<button id="b">RECOMEÇAR</button>'; document.getElementById('b').onclick=()=>{lives=3;startLevel(1);}; return; }
   const msg = cfg.type==='collect' ? 'A Pedra encheu e nasceram corações felizes!' : 'Você apaixonou todo mundo!';
   overlay.innerHTML='<h1>💞 NÍVEL '+level+' OK 💞</h1><p>'+msg+'</p>'+
-    '<p style="opacity:.8;font-size:13px">'+(level>=5?'A partir daqui a realidade vai distorcendo a cada nível...':'')+'</p>'+
     '<button id="b">NÍVEL '+(level+1)+' →</button>';
   document.getElementById('b').onclick=()=>startLevel(level+1); }
 
@@ -694,7 +691,7 @@ function die(){ state='end'; overlay.classList.remove('hidden'); beep(120,0.4,'s
 
 function showMenu(){ overlay.classList.remove('hidden');
   const sv=loadProgress();
-  const intro='<p>Escale a montanha cheia de plataformas e apaixone todo mundo. 5 níveis feitos à mão; do 6 em diante, um motor distorce a realidade — cada nível mais estranho e mais difícil (No Man\'s Sky / Backrooms), com monstros entrando lá pra frente. Você tem vida ❤ e seus poderes crescem junto.</p>';
+  const intro='<p>Escale a montanha cheia de plataformas e apaixone todo mundo. Os <b>5 primeiros níveis</b> são feitos à mão; do <b>6 em diante</b> os níveis são <b>gerados aleatoriamente</b>, cada um mais difícil que o anterior.</p>';
   const hint = MOBILE
     ? '<p class="hint">Encoste e arraste em qualquer lugar = <b>joystick</b> (move pros lados).<br>2º dedo: arraste ↑ = <b>pulo</b> · ↓ = <b>barreira</b> 🧱 · segure ❤ = <b>explosão</b> 💥</p>'
     : '<div class="keys"><b>← →</b> andar · <b>↑</b> pular (no ar = duplo/triplo) · <b>ESPAÇO</b> explosão 💥 · <b>↓</b> parede 🧱</div>';
@@ -738,28 +735,32 @@ bindTouch('bCharge', onCharge, offCharge);   // ❤ explosão (segura e solta)
 
 if(MOBILE){
   const wrap=document.getElementById('wrap');
-  const onCharBtn=t=>!!(t.target&&t.target.closest&&t.target.closest('#bCharge'));
+  const onUI=t=>!!(t.target&&t.target.closest&&(t.target.closest('#bCharge')||t.target.closest('#overlay')||t.target.closest('button')));
   wrap.addEventListener('touchstart',e=>{
-    for(const t of e.changedTouches){ if(onCharBtn(t))continue;
-      if(!joy) joy={id:t.identifier, ox:t.clientX, oy:t.clientY, x:t.clientX, y:t.clientY};
-      else if(!gesture && t.identifier!==joy.id) gesture={id:t.identifier, sy:t.clientY, did:null}; }
-    e.preventDefault();
+    if(state!=='play') return;                       // menu/botões livres
+    let used=false;
+    for(const t of e.changedTouches){ if(onUI(t))continue;
+      if(!joy){ joy={id:t.identifier, ox:t.clientX, oy:t.clientY, x:t.clientX, y:t.clientY}; used=true; }
+      else if(!gesture && t.identifier!==joy.id){ gesture={id:t.identifier, sy:t.clientY, did:null}; used=true; } }
+    if(used) e.preventDefault();
   },{passive:false});
   wrap.addEventListener('touchmove',e=>{
+    if(state!=='play') return;
+    let used=false;
     for(const t of e.changedTouches){
-      if(joy && t.identifier===joy.id){
+      if(joy && t.identifier===joy.id){ used=true;
         let dx=t.clientX-joy.ox, dy=t.clientY-joy.oy; const m=Math.hypot(dx,dy);
         if(m>JOY_R){ dx*=JOY_R/m; dy*=JOY_R/m; }
         joy.x=joy.ox+dx; joy.y=joy.oy+dy;
         keys.left=dx<-JOY_DZ; keys.right=dx>JOY_DZ;
-      } else if(gesture && t.identifier===gesture.id){
+      } else if(gesture && t.identifier===gesture.id){ used=true;
         const dy=t.clientY-gesture.sy;
         if(dy<-SWIPE && gesture.did!=='up'){ requestJump(); gesture.did='up'; }       // 2º dedo p/ cima = pulo
         else if(dy>SWIPE && gesture.did!=='down'){ if(state==='play')placeWall(); gesture.did='down'; } // p/ baixo = barreira
         else if(Math.abs(dy)<10){ gesture.did=null; }   // voltou ao centro → pode repetir (pulo duplo/triplo)
       }
     }
-    e.preventDefault();
+    if(used) e.preventDefault();
   },{passive:false});
   const endTouch=e=>{ for(const t of e.changedTouches){
       if(joy && t.identifier===joy.id){ joy=null; keys.left=keys.right=false; }
