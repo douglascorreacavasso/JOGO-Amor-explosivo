@@ -1,0 +1,51 @@
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#070612; font-family:'Trebuchet MS','Segoe UI',sans-serif; }
+  #wrap { position:relative; width:100%; height:100%; }
+  canvas { display:block; width:100%; height:100%; touch-action:none; }
+  #hud { position:absolute; top:12px; left:14px; right:14px; display:flex; justify-content:space-between;
+         align-items:flex-start; pointer-events:none; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.7); }
+  #count { font-size:18px; font-weight:bold; }
+  #count small { font-weight:normal; opacity:.82; font-size:12px; display:block; line-height:1.5; }
+  #obj { font-size:12.5px; text-align:right; max-width:50%; opacity:.92; line-height:1.35; }
+  #bars { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); width:min(420px,72%); pointer-events:none; }
+  .bar { position:relative; height:13px; border-radius:10px; background:rgba(255,255,255,.13);
+         overflow:hidden; margin-bottom:5px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); }
+  .fill { height:100%; width:0%; border-radius:10px; }
+  #amorFill { background:linear-gradient(90deg,#ff8fab,#ff0a54); box-shadow:0 0 12px #ff2e63; transition:width .04s linear;}
+  #stamFill { background:linear-gradient(90deg,#ffd166,#06d6a0); }
+  .barLbl { color:#fff; font-size:9px; letter-spacing:2px; opacity:.65; text-shadow:0 1px 3px #000; margin-left:2px; }
+  #overlay { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+             align-items:center; text-align:center; padding:24px; color:#fff;
+             background:radial-gradient(circle at center, rgba(30,16,60,.85), rgba(6,5,18,.97)); z-index:5; }
+  #overlay.hidden { display:none; }
+  #overlay h1 { font-size:clamp(24px,7vw,48px); margin-bottom:10px; letter-spacing:1px; text-shadow:0 0 24px #ff2e63; }
+  #overlay p { font-size:clamp(13px,3.5vw,17px); max-width:560px; line-height:1.55; opacity:.92; margin-bottom:8px; }
+  #overlay .keys { margin:12px 0 18px; font-size:13.5px; opacity:.85; line-height:1.95; }
+  #overlay .keys b { background:rgba(255,255,255,.14); padding:2px 9px; border-radius:6px; font-weight:bold; }
+  #overlay button { font-family:inherit; font-size:17px; font-weight:bold; color:#fff; cursor:pointer; margin:6px;
+                    border:none; padding:13px 30px; border-radius:40px; letter-spacing:1px;
+                    background:linear-gradient(90deg,#ff5d8f,#ff0a54); box-shadow:0 8px 24px rgba(255,10,84,.5); transition:transform .12s; }
+  #overlay button.alt { background:linear-gradient(90deg,#7b5cff,#4a2fae); box-shadow:0 8px 24px rgba(90,50,200,.5); }
+  #overlay button:active { transform:scale(.94); }
+  #touch { position:absolute; inset:0; pointer-events:none; z-index:4; }
+  .tbtn { position:absolute; border-radius:50%; background:rgba(255,255,255,.10); border:2px solid rgba(255,255,255,.25);
+          display:flex; align-items:center; justify-content:center; font-size:26px; color:#fff;
+          pointer-events:auto; user-select:none; backdrop-filter:blur(4px); }
+  .tbtn:active { background:rgba(255,255,255,.30); }
+  #bL{ left:18px; bottom:24px; width:70px; height:70px; }
+  #bR{ left:96px; bottom:24px; width:70px; height:70px; }
+  #bJump{ right:104px; bottom:24px; width:70px; height:70px; }
+  #bWall{ right:24px; bottom:24px; width:70px; height:70px; font-size:24px;
+          background:rgba(120,90,255,.26); border-color:rgba(179,157,219,.6); }
+  #bCharge{ right:30px; bottom:106px; width:88px; height:88px; font-size:32px;
+            background:rgba(255,45,99,.28); border-color:rgba(255,143,171,.6); }
+  #bPow{ right:120px; bottom:30px; width:72px; height:72px; font-size:28px;
+         background:rgba(255,209,102,.26); border-color:rgba(255,209,102,.6); }
+  #bCyc{ right:140px; bottom:114px; width:50px; height:50px; font-size:20px;
+         background:rgba(120,224,255,.22); border-color:rgba(127,224,255,.6); }
+  #bDiv{ left:50%; transform:translateX(-50%); bottom:150px; width:96px; height:96px; font-size:40px;
+         background:rgba(255,209,102,.32); border-color:rgba(255,243,176,.9);
+         box-shadow:0 0 26px rgba(255,209,102,.7); animation:divpulse 1s infinite alternate; }
+  @keyframes divpulse{ from{ box-shadow:0 0 18px rgba(255,209,102,.5);} to{ box-shadow:0 0 34px rgba(255,209,102,.95);} }
+  #overlay a.clr { color:#ff9eb5; font-size:12px; opacity:.7; text-decoration:underline; cursor:pointer; }
+  #overlay .hint { font-size:13px; opacity:.8; margin:6px 0; }
