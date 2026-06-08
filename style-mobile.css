@@ -3,18 +3,33 @@ html, body { position:fixed; top:0; left:0; width:100vw; height:100vh; height:10
 #wrap { height:100vh; height:100dvh; }
 #hud { padding-top: env(safe-area-inset-top, 0px); }
 #touch { display:block; }
-#hud #count { font-size:16px; }
-#obj { font-size:11.5px; }
+#hud #count { font-size:15px; }
+#obj { font-size:11px; line-height:1.25; }
+/* texto dos overlays mais COMPACTO no celular (menos distância) */
+#overlay { padding:12px 12px 20px; }
+#overlay p { line-height:1.32; margin-bottom:5px; font-size:clamp(12px,3.2vw,15px); }
+#overlay h1 { margin-bottom:6px; }
+.briefBig { font-size:clamp(23px,8vw,40px); line-height:1.05; margin-bottom:10px; }
+.briefSub { font-size:clamp(14px,4.4vw,19px); line-height:1.25; margin-bottom:12px; }
+.briefStep { margin-bottom:6px; }
 /* botão de explosão no canto, fora da zona do joystick */
-#bCharge { right:22px; bottom:22px; width:92px; height:92px; }
-/* aviso: gire o celular (aparece só em modo retrato) */
+#bCharge { right:22px; bottom:22px; width:88px; height:88px; }
+/* aviso: gire o celular — controlado por JS (classe .portrait no body), funciona mesmo no iPhone/in-app */
 #rotate { display:none; }
+body.portrait #rotate { display:flex; position:fixed; inset:0; z-index:60; background:#070612;
+  flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  color:#fff; font-family:'Trebuchet MS','Segoe UI',sans-serif; padding:24px; }
+body.portrait #rotate .rot-ico { font-size:74px; animation:rothint 1.8s ease-in-out infinite; transform-origin:center; }
+body.portrait #rotate p { font-size:19px; margin-top:20px; opacity:.92; letter-spacing:.5px; }
+body.portrait #touch, body.portrait #bars, body.portrait #hud { display:none; }   /* esconde o jogo enquanto pede pra girar */
+/* fallback por media query (caso o JS não rode) */
 @media (orientation:portrait){
   #rotate { display:flex; position:fixed; inset:0; z-index:60; background:#070612;
     flex-direction:column; align-items:center; justify-content:center; text-align:center;
     color:#fff; font-family:'Trebuchet MS','Segoe UI',sans-serif; padding:24px; }
   #rotate .rot-ico { font-size:74px; animation:rothint 1.8s ease-in-out infinite; transform-origin:center; }
   #rotate p { font-size:19px; margin-top:20px; opacity:.92; letter-spacing:.5px; }
-  #touch, #bars, #hud { display:none; }     /* esconde o jogo enquanto pede pra girar */
 }
+/* se o JS detectou paisagem, a classe vence a media query e libera o jogo */
+body:not(.portrait) #rotate { display:none !important; }
 @keyframes rothint { 0%,15%{transform:rotate(-10deg);} 55%,70%{transform:rotate(80deg);} 100%{transform:rotate(-10deg);} }

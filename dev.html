@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Amor Explosivo — DEV (inspetor de níveis)</title>
+<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style-desktop.css?v=26">
+<style>
+  body{ background:#070612; }
+  /* deixa espaço pro jogo embaixo da barra */
+  #wrap{ position:fixed; top:46px; left:0; right:0; bottom:0; width:100%; height:auto; }
+  #devbar{ position:fixed; top:0; left:0; right:0; height:46px; z-index:200; display:flex; align-items:center; gap:8px;
+    padding:0 10px; background:#11102a; border-bottom:1px solid #2a2850; color:#dfe3ff;
+    font:13px/1.2 'Trebuchet MS','Segoe UI',sans-serif; flex-wrap:nowrap; overflow-x:auto; }
+  #devbar b{ color:#ff8fab; }
+  #devbar button{ background:#2a2850; color:#fff; border:1px solid #45427a; border-radius:7px; padding:6px 10px; cursor:pointer; font-size:14px; }
+  #devbar button:hover{ background:#3a3870; }
+  #devbar button.big{ font-size:18px; padding:4px 12px; }
+  #devbar input{ width:64px; background:#070612; color:#fff; border:1px solid #45427a; border-radius:6px; padding:5px 6px; text-align:center; }
+  #devbar .sep{ width:1px; height:24px; background:#2a2850; margin:0 4px; }
+  #devinfo{ font-size:12px; color:#9fb0ff; white-space:nowrap; }
+  #devinfo .tag{ background:#2a2850; border-radius:6px; padding:1px 6px; margin-left:4px; color:#ffd166; }
+  #devscan{ position:fixed; right:10px; top:52px; z-index:200; background:#11102a; border:1px solid #2a2850;
+    border-radius:10px; padding:8px 10px; color:#dfe3ff; font:12px 'Trebuchet MS',sans-serif; max-width:280px; display:none; }
+  #devscan.show{ display:block; }
+  #devscan h4{ margin:0 0 4px; color:#ff8fab; }
+</style>
+</head>
+<body data-platform="desktop">
+<div id="devbar">
+  <b>DEV</b>
+  <button class="big" id="dprev">◀</button>
+  <span>nível <input id="dlvl" type="number" min="1" max="1000" value="1"></span>
+  <button class="big" id="dnext">▶</button>
+  <button id="dgo">ir</button>
+  <div class="sep"></div>
+  <span>semente <input id="dseed" type="number" value="0" style="width:120px"></span>
+  <button id="dseedgo">usar</button>
+  <button id="drand">🎲 nova</button>
+  <div class="sep"></div>
+  <button id="dscan">✔ varrer 1–100 (alcance)</button>
+  <span id="devinfo"></span>
+</div>
+<div id="devscan"></div>
+
+<div id="wrap">
+  <canvas id="game"></canvas>
+  <div id="hud"><div id="count">💕 0 / 0<small>apaixonados</small></div><div id="obj"></div></div>
+  <div id="bars">
+    <span class="barLbl">AMOR</span><div class="bar"><div id="amorFill" class="fill"></div></div>
+    <span class="barLbl">CANSAÇO</span><div class="bar"><div id="stamFill" class="fill"></div></div>
+  </div>
+  <div id="overlay"></div>
+</div>
+
+<script>
+  // liga o modo DEV e pula o briefing (pra inspecionar direto)
+  window.__DEV = true;
+  window.__SKIP_INTRO = true;
+</script>
+<script src="game.js?v=26"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  function refresh(info){ if(!info) return;
+    $('dlvl').value=info.level; $('dseed').value=info.seed>>>0;
+    const tags=(info.tags||[]).map(t=>'<span class="tag">'+t+'</span>').join('');
+    const mon = info.monsters? (' · 👹'+info.monsters+' ['+(info.monstersKinds||[]).join(',')+']') : '';
+    const tgt = info.type==='collect' ? (' · alvo '+info.target+' (coleta #'+info.collectIndex+')') : '';
+    $('devinfo').innerHTML = '<b>'+(info.label||'')+'</b> · '+info.type+' · barras '+info.plats+
+      ' · 😔'+info.npcs+mon+tgt+' · mundo '+info.W+'×'+info.H+' '+tags;
+  }
+  function api(){ return window.AE_DEV; }
+  function ensure(cb){ if(api()) cb(); else setTimeout(()=>ensure(cb),60); }   // espera o game.js subir
+  ensure(()=>{ refresh(api().go(parseInt($('dlvl').value)||1)); });
+  $('dprev').onclick=()=>refresh(api().prev());
+  $('dnext').onclick=()=>refresh(api().next());
+  $('dgo').onclick=()=>refresh(api().go(parseInt($('dlvl').value)||1));
+  $('dlvl').addEventListener('keydown',e=>{ if(e.key==='Enter') refresh(api().go(parseInt($('dlvl').value)||1)); });
+  $('dseedgo').onclick=()=>refresh(api().reseed(parseInt($('dseed').value)||0));
+  $('drand').onclick=()=>refresh(api().randSeed());
+  $('dscan').onclick=()=>{ const box=$('devscan'); box.classList.add('show'); box.innerHTML='<h4>Varrendo 1–100…</h4>';
+    setTimeout(()=>{ const r=api().scan(1,100); refresh(api().info());
+      box.innerHTML='<h4>Varredura de alcance (1–100)</h4>'+
+        (r.fails.length? ('⚠️ '+r.fails.length+' fase(s) com topo inalcançável:<br>'+r.fails.join(', '))
+                       : '✅ todas as '+r.checked+' fases têm caminho do chão ao topo.'); }, 20);
+  };
+  // teclado: setas ←/→ trocam de nível (sem precisar clicar)
+  window.addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT')return;
+    if(e.key==='PageUp'){ refresh(api().next()); } else if(e.key==='PageDown'){ refresh(api().prev()); } });
+})();
+</script>
+</body>
+</html>

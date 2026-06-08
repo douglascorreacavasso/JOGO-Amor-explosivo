@@ -49,3 +49,9 @@
   @keyframes divpulse{ from{ box-shadow:0 0 18px rgba(255,209,102,.5);} to{ box-shadow:0 0 34px rgba(255,209,102,.95);} }
   #overlay a.clr { color:#ff9eb5; font-size:12px; opacity:.7; text-decoration:underline; cursor:pointer; }
   #overlay .hint { font-size:13px; opacity:.8; margin:6px 0; }
+  /* ===== Briefing por nível: GRANDE, em partes, alto contraste ===== */
+  #overlay .brief { max-width:720px; }
+  .briefStep { letter-spacing:2px; font-size:12px; opacity:.6; margin-bottom:10px; text-transform:uppercase; }
+  .briefBig  { font-size:clamp(26px,7.4vw,54px); font-weight:900; line-height:1.04; text-shadow:0 0 26px #ff2e63; margin-bottom:14px; }
+  .briefSub  { font-size:clamp(15px,3.8vw,23px); opacity:.95; line-height:1.3; margin-bottom:16px; max-width:600px; }
+  .briefDots { margin-top:14px; letter-spacing:6px; opacity:.7; font-size:13px; }

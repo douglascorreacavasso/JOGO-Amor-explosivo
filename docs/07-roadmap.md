@@ -2,6 +2,18 @@
 
 A gente faz **em pedaços**; a cada pedaço eu te mando o arquivo, e no fim fecho um **ZIP completo**.
 
+## ✅ Extra 5 — Correções do irmão/primo + performance + DEV (v26)
+- **iPhone girar:** detecção de orientação por **JS (classe .portrait)** além da media query — funciona mesmo em navegador embutido (in-app) do iPhone.
+- **PC sem área vazia gigante:** tamanho da fase agora é medido em **telas** (`areaForLevel`): 1×3, 1×3(coleta), 1×4, … 2×4 até a 50, 2×5 até a 125, depois 2×6. Largura ≥ 1 tela → não sobra vazio.
+- **Coleta 100 → 10.** 1ª coleta tem **só 1 estranho**; cada nova fica mais variada (`collectIndex`).
+- **Corações com personalidade FIXA** (item+cor+forma por tipo) e atividade própria.
+- **Controle:** só o **joystick** — cima=pulo, baixo=parede. ❤ continua pra explosão.
+- **Barras com movimento:** lateral / sobe-desce / diagonal / **esteira** (faixa inteira desliza e reaparece) e às vezes **acelera**.
+- **Briefing por nível**, em letras grandes e **em partes**, que trava até entender (resolve "apertou e não sabia o que fazer").
+- **Performance (lentidão do irmão):** teto de faixas/barras + colisão indexada por faixa + `computeReachable` otimizado. Medido headless: `update()` ~0,15–0,43 ms/frame **constante** da fase 1 à 200.
+- **DEV demo (`dev.html`):** seta no topo pra trocar de nível, semente, info da fase e **varrer 1–100 checando alcance** — QA sem jogar. Robôs Node: `_test.js`, `_draw.js`, `_dev.js`.
+- **Sempre vencível garantido:** nova **escada-espinha** (caminho do chão ao topo) + robô valida 0 falhas em 1–200.
+
 ## ✅ Pronto
 - Separação em arquivos (HTML/CSS/JS) + versões PC e celular com detecção.
 - Modos Aventura / Infinito + salvar/continuar no aparelho.

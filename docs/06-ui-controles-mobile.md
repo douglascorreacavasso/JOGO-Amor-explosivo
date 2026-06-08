@@ -15,10 +15,11 @@ O desafio: vão existir vários poderes. Proposta pra não encher a tela:
 - O **Amor Divino** (definitivo) pode virar um botão que só **aparece quando a barra enche** (raro), pra não ocupar espaço o tempo todo.
 - Ícones pequenos e translúcidos, longe da zona do **joystick flutuante**.
 
-## Gestos (já existem, mantém)
+## Gestos (ATUALIZADO v26 — só o joystick)
 - **Joystick flutuante** = mover pros lados.
-- **2º dedo:** arrastar ↑ = pular, ↓ = barreira.
-- Dá pra usar o 2º dedo também pra **trocar/disparar** poder ativo, se ficar melhor que botão (a decidir testando).
+- **Joystick pra CIMA** = pular (re-arma no ar pra duplo/triplo).
+- **Joystick pra BAIXO** = soltar a barreira 🧱.
+- Sumiu o "2º dedo" — um dedo só faz tudo (mais intuitivo). O botão **❤** (canto) continua pra explosão; **★/⇄/✨** só aparecem com poder/barra cheia.
 
 ## Raio da explosão (corrigido)
 - Estava **exagerado de grande**. **Já reduzido** (de ~380–900 para ~240–385 no talo). Dá pra afinar mais se ainda estiver grande.
