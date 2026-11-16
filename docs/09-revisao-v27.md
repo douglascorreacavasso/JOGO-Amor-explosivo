@@ -135,3 +135,50 @@ Os dois erros que esses testes acharam foram corrigidos:
 - **Porta:** ela chegava atrasada e não engolia o jogador no pulo.
 
 Os eventos novos também entram no grafo GEP: pessoa explodiu, inchou, porta, prego girou, arquiteto moveu plataforma e faltam monstros.
+
+## 9. Celular com dois dedos (16/11, manhã)
+
+- **Esquerda:** o dedo da metade esquerda da tela é o joystick. Ele anda ← → e, puxado para baixo, faz a barreira.
+- **Direita:** o dedo da metade direita pula com um toque (segurar dá um pulo mais alto). Tocar de novo no ar faz o pulo duplo ou triplo.
+- **Botões:** ★ e ✨ funcionam com um toque simples, junto com os dois dedos. 💥 é segurar e soltar, como antes. Dá para usar no meio do pulo.
+- **Botão de explosão:** ficou menor (66×60 em vez de 96×88), mais claro e um pouco transparente. Os botões ★ e ⇄ também ficaram menores.
+- **Dica na tela:** nas fases 1 e 2, nos primeiros segundos, aparece uma dica com fundo escuro mostrando cada lado.
+- **Teste:** feito com toque real no celular emulado (Edge, `Input.dispatchTouchEvent`):
+  - andar, pular com o outro dedo enquanto anda, pulo duplo, poder no meio do pulo e botão discreto passaram;
+  - não houve erro de JavaScript.
+
+## 10. Rodada 3 (16/11, tarde) — detalhes do Douglas e ideias de outros jogos
+
+Ver também `docs/10-ideias-e-referencias.md`.
+
+**Mecânicas novas e ajustes**
+- **Prego v2.** Em todas as fases (1 ou 2, um pouco mais nas fundas). Pisar no meio não pesa. Pisar na beirada faz a plataforma inclinar, girar até uns 90° (te derruba), segurar ~1 s e voltar sozinha para o lugar.
+- **Portinha viva v2.**
+  - É uma portinha de 40×62 com olhos que te seguem, e vira uma boquinha com dentes quando caça.
+  - Aparece em cerca de 55% das fases a partir do nível 2, em dupla, longe uma da outra.
+  - Pulou a ~4 corpos dela, ela pula em você e se força a passar por você. Você sai pela outra e as duas somem.
+  - O fundo "Corredor de Hotel" não tem mais portas: agora é papel listrado com rodapé.
+- **Espinhos dos monstros.** Onde os monstros pisam por ~7 s, a plataforma escurece e nascem espinhos. Cair neles mata; o escudo protege e te joga para cima. A explosão quebra.
+- **Coração de tanto amor.** Cada explosão deixa a plataforma do centro mais rosa. Na 3ª, ela vira um coração grande que cai em 2 s e solta corações no chão. A escada principal nunca vira coração, e isso limita a explosão sem parar.
+- **Plataformas em grupo** (nível 6+, ~45% das fases): onda, balanço juntas ou "respirando".
+- **Ponte que quebra** (nível 8+): meio segundo em cima, ela racha e cai; volta em 4 s.
+- **Personalidades dos apaixonados:** 😍 🥺 😳 😠 🤪 🧐, com o símbolo em cima da cabeça.
+- **Quatro monstros novos:** tristonho, camaleão, divisor e pisca-pisca.
+- **Poderes:** dash de amor (SHIFT ou botão »), coração dourado e a regra "mundo acelerado".
+- **IA própria do jogo:** estratégias aprendidas pelos monstros, hábitos do jogador e nível de IA que sobe com o tempo de jogo.
+
+**Testes (script do Claude, fora do jogo):** 28 de 28 passaram.
+- Prego: parado no meio; 90° na beirada; volta sozinho.
+- Portinha: em 120 de 200 fases; pequena; te engole.
+- Espinhos: nascem, matam e quebram.
+- Coração: vira e cai; a escada nunca vira.
+- Grupos: em 95 de 200 fases, dentro do mundo.
+- Personalidades: tímido parado de costas.
+- Monstros novos: os quatro funcionam.
+- Dash, dourado e IA (valor sobe, fica salvo, nível cresce).
+- 20.000 fases geradas, com o topo sempre alcançável e a escada nunca girando, quebrando ou ondulando.
+- 3.000 partidas com robô, sem erro e sem NaN.
+
+**Erros que os testes acharam e o Claude corrigiu**
+- As explosões transformavam plataformas demais. Agora só a do centro da explosão fica rosa.
+- A função `jogador()` do dev sumiu durante a edição; foi restaurada.

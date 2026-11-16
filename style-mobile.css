@@ -19,7 +19,7 @@ html, body { position:fixed; top:0; left:0; width:100vw; height:100vh; height:10
 .briefIcon { font-size:44px; }
 .btn { font-size:15px; padding:11px 22px 11px 16px; margin:5px; }
 /* botão de explosão no canto, fora da zona do joystick */
-#bCharge { right:22px; bottom:18px; }
+#bCharge { right:18px; bottom:14px; }
 #bPause { top:6px; width:36px; height:36px; }
 /* aviso: gire o celular — controlado por JS (classe .portrait no body) */
 #rotate { display:none; }
