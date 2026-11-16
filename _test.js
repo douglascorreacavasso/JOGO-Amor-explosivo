@@ -19,7 +19,7 @@ const canvas = stubEl();
 global.document = {
   body: { dataset:{platform:'desktop'}, classList:{add(){},remove(){},toggle(){}} },
   getElementById(id){ if(id==='game') return canvas; return stubEl(); },
-  addEventListener(){}
+  addEventListener(){}, createElement(){ return stubEl(); }
 };
 global.window = { addEventListener(){}, devicePixelRatio:1, innerWidth:1280, innerHeight:720,
   AudioContext:undefined, webkitAudioContext:undefined, visualViewport:null };

@@ -11,5 +11,6 @@ Tudo que foi pedido, organizado em páginas separadas pra não ficar pesado. Est
 | [05 — Fase de coleta](05-fase-coleta.md) | Corações aleatórios e suas variações malucas |
 | [06 — UI e controles (celular)](06-ui-controles-mobile.md) | Mostrar muitos poderes sem poluir + correções de tela |
 | [07 — Roadmap](07-roadmap.md) | Ordem de construção, em pedaços, com status |
+| [09 — Revisão v27](09-revisao-v27.md) | 49 bugs e furos de lógica corrigidos, poderes progressivos, salas estranhas, desempenho |
 
 > **Princípio geral:** o motor tem que ser **mega criativo** e gerar aberrações cada vez mais doidas — mas o jogo **sempre tem que continuar vencível** (existe um caminho até o objetivo, validado por teste).

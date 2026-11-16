@@ -2,29 +2,41 @@
 
 > Jogo de plataforma em **HTML5 Canvas + JavaScript puro** (sem bibliotecas), roda no navegador no **PC e no celular**.
 
-Escale a montanha, carregue a **explosão de amor** e apaixone todo mundo. Os **5 primeiros níveis** são feitos à mão; do **6 em diante** os níveis são **gerados** por um motor procedural que vai distorcendo tudo (efeito Backrooms), mais difícil a cada nível — mas **sempre vencível**.
+Fases largas de **rolagem lateral** (ida e volta) com subida: carregue a **explosão de amor** e apaixone todo mundo. Os **5 primeiros níveis** são feitos à mão; do **6 em diante** os níveis são **gerados** por um motor procedural que fica cada vez mais estranho (salas estilo Backrooms em 4 camadas, do "quase normal" ao "puro abstrato"), mais difícil a cada nível — mas **sempre vencível**.
 
-Feito por **Douglas**.
+Feito por **Douglas**. Revisão v27 (física em passo fixo, desenho leve, telas novas, poderes progressivos, salas estranhas) feita pelo Claude em 15/11/2026 — ver `docs/09-revisao-v27.md`.
 
 ---
 
 ## ⌨️ Como jogar
 
-**PC (teclado):** `← →`/`A D` anda · `↑`/`W` pula (duplo/triplo) · `ESPAÇO` (segura e solta) explode 💥 · `↓`/`S` parede 🧱 · `E` usa poder · `Q` troca poder · `F` Amor Divino ✨ · `R` reinicia.
+**PC (teclado):** `← →`/`A D` anda · `↑`/`W` pula (segurar = pulo mais alto) · `ESPAÇO` (segura e solta) explode 💥 · `↓`/`S` barreira 🧱 · `E` usa poder · `Q` troca poder · `F` Amor Divino ✨ · `P`/`Esc` pausa · `R` reinicia a fase · `Enter` confirma nas telas.
 
 **Celular (toque) — gire pra horizontal:**
-- **Joystick flutuante** (encoste e arraste em qualquer lugar): **← →** anda · **↑ pra cima = pula** (de novo no ar = duplo/triplo) · **↓ pra baixo = parede** 🧱.
-- Botão **❤** (canto): segure e solte = **explosão** 💥. Os botões **★ / ⇄ / ✨** só aparecem quando você tem poder / a barra enche.
+- **Joystick flutuante** (encoste e arraste em qualquer lugar): **← →** anda · **↑ pra cima = pula** (segurar = mais alto; de novo no ar = duplo/triplo) · **↓ pra baixo = barreira** 🧱.
+- Botão **💥** (coração no canto): segure e solte = **explosão**. Os botões **★ / ⇄ / ✨** só aparecem quando você tem poder / a energia enche. **❚❚** no topo pausa.
 
-**Objetivo:** apaixonar **todos os tristes** (azuis). Em fases de **coleta**, junte os corações fujões e leve até a **Máquina** 🪨. Com **monstros**: apaixone todos **e** derrote os monstros.
+**Objetivo:** apaixonar **todos os tristes** (azuis). Em fases de **coleta**, junte os corações fujões e leve até a **Máquina do Amor**. Com **monstros**: apaixone todos **e** derrote os monstros.
 
-No começo de cada fase nova aparece um **briefing grande, em partes**, explicando o que fazer.
+No começo de cada fase aparece um **briefing em partes**: explica o objetivo, cada **poder novo**, cada **monstro novo** e cada **regra estranha** da sala na primeira vez que aparecem.
+
+### Poderes que vão aparecendo
+| Nível | Poder |
+|---|---|
+| 1 | Explosão de amor 💥 |
+| 2 | Pulo duplo 🦘 |
+| 3 | Barreira de amor 🧱 |
+| 5 | Pulo triplo 🪽 |
+| 7 | Disparo de amor 💘 |
+| 10 | Amor Divino ✨ (energia cheia) |
+| 12 / 15 / 18 | Onda 🌊 / Escudo 🛡️ / Laser 🔆 |
+| 22 / 26 / 30 | Chuva 🌧️ / Coração de proteção 💚 / Amor elétrico ⚡ |
 
 ---
 
 ## 🕹️ Modos
-- **Aventura** — vidas + HP. Zerou HP perde vida; acabaram as 3, volta ao nível 1.
-- **Infinito** — ao ser tocado, reinicia o nível na hora; guarda o recorde de profundidade.
+- **Aventura** — 3 vidas, cada vida com corações de HP. Zerou o HP perde uma vida; acabaram as 3, volta ao nível 1.
+- **Infinito** — sem vidas: qualquer toque reinicia a fase na hora; guarda o recorde de profundidade.
 
 Progresso **salvo no aparelho** (menu mostra **▶ Continuar**). O save guarda a **semente**, então o "Continuar" reproduz o mesmo mundo.
 

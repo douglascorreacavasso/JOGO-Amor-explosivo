@@ -2,6 +2,15 @@
 
 A gente faz **em pedaços**; a cada pedaço eu te mando o arquivo, e no fim fecho um **ZIP completo**.
 
+## ✅ Extra 6 — Revisão geral v27 (Claude, 15/11/2026) — detalhes em `09-revisao-v27.md`
+- Física em **passo fixo de 60 Hz** (antes dependia do FPS) + câmera que olha pra onde você anda.
+- Desenho leve: sprites prontos, sem shadowBlur em tempo real, fundo em cache, **qualidade automática** pra aparelho fraco.
+- Fases largas de rolagem lateral em **unidades fixas** (mesma fase em qualquer tela).
+- **Poderes aparecem aos poucos com aviso**; monstros novos e regras novas também são explicados.
+- Diretor Backrooms em **4 camadas** (17 salas, 13 regras estranhas).
+- Telas novas no tema de corações (menu, tutorial, briefing, pausa, fim de fase).
+- Mais de 40 bugs e furos de lógica corrigidos; 200 mil testes automáticos.
+
 ## ✅ Extra 5 — Correções do irmão/primo + performance + DEV (v26)
 - **iPhone girar:** detecção de orientação por **JS (classe .portrait)** além da media query — funciona mesmo em navegador embutido (in-app) do iPhone.
 - **PC sem área vazia gigante:** tamanho da fase agora é medido em **telas** (`areaForLevel`): 1×3, 1×3(coleta), 1×4, … 2×4 até a 50, 2×5 até a 125, depois 2×6. Largura ≥ 1 tela → não sobra vazio.

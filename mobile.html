@@ -6,19 +6,20 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <title>Amor Explosivo — Celular</title>
-<link rel="stylesheet" href="style.css?v=26">
-<link rel="stylesheet" href="style-mobile.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
+<link rel="stylesheet" href="style-mobile.css?v=27">
 </head>
 <body data-platform="mobile">
 <div id="wrap">
   <canvas id="game"></canvas>
-  <div id="hud"><div id="count">💕 0 / 0<small>apaixonados</small></div><div id="obj"></div></div>
+  <div id="hud"><div id="count"></div><div id="obj"></div></div>
   <div id="bars">
-    <span class="barLbl">AMOR</span><div class="bar"><div id="amorFill" class="fill"></div></div>
-    <span class="barLbl">CANSAÇO</span><div class="bar"><div id="stamFill" class="fill"></div></div>
+    <div class="barRow"><span class="barLbl">AMOR</span><div class="bar"><div id="amorFill" class="fill"></div></div></div>
+    <div class="barRow"><span class="barLbl">ENERGIA</span><div class="bar"><div id="stamFill" class="fill"></div></div></div>
   </div>
+  <button id="bPause" aria-label="Pausar">❚❚</button>
   <div id="touch">
-    <div class="tbtn" id="bCharge">❤</div>
+    <div class="tbtn" id="bCharge" aria-label="Explosão de amor">💥</div>
     <div class="tbtn" id="bPow">★</div>
     <div class="tbtn" id="bCyc">⇄</div>
     <div class="tbtn" id="bDiv" style="display:none">✨</div>
@@ -26,6 +27,7 @@
   <div id="overlay"></div>
 </div>
 <div id="rotate"><div class="rot-ico">📱</div><p>Gire o celular para jogar 🔄</p></div>
-<script src="game.js?v=26"></script>
+<script src="grafo_experiencia.js?v=27"></script>
+<script src="game.js?v=27"></script>
 </body>
 </html>

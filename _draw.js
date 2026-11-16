@@ -4,9 +4,9 @@ function stubCtx(){ const grad={addColorStop(){}}; return new Proxy({},{get(_t,k
   if(k==='measureText')return ()=>({width:10}); if(k==='canvas')return {width:0,height:0};
   return ()=>{}; }}); }
 const styleObj=()=>new Proxy({},{get(){return '';},set(){return true;}});
-function stubEl(){return{style:styleObj(),dataset:{},classList:{add(){},remove(){},toggle(){}},set innerHTML(v){},get innerHTML(){return '';},addEventListener(){},getContext(){return stubCtx();},clientWidth:1280,clientHeight:720,width:0,height:0,set onclick(v){},closest(){return null;}};}
+function stubEl(){return{style:styleObj(),dataset:{},classList:{add(){},remove(){},toggle(){},contains(){return false;}},querySelector(){return null;},set innerHTML(v){},get innerHTML(){return '';},addEventListener(){},getContext(){return stubCtx();},clientWidth:1280,clientHeight:720,width:0,height:0,set onclick(v){},closest(){return null;}};}
 const canvas=stubEl();
-global.document={body:{dataset:{platform:'desktop'},classList:{add(){},remove(){},toggle(){}}},getElementById(id){return id==='game'?canvas:stubEl();},addEventListener(){}};
+global.document={body:{dataset:{platform:'desktop'},classList:{add(){},remove(){},toggle(){}}},getElementById(id){return id==='game'?canvas:stubEl();},addEventListener(){},createElement(){return stubEl();}};
 global.window={addEventListener(){},devicePixelRatio:1,innerWidth:1280,innerHeight:720,visualViewport:null};
 global.navigator={userAgent:'node',maxTouchPoints:0};
 global.localStorage={getItem(){return null;},setItem(){},removeItem(){}};
