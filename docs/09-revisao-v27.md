@@ -182,3 +182,25 @@ Ver também `docs/10-ideias-e-referencias.md`.
 **Erros que os testes acharam e o Claude corrigiu**
 - As explosões transformavam plataformas demais. Agora só a do centro da explosão fica rosa.
 - A função `jogador()` do dev sumiu durante a edição; foi restaurada.
+
+
+## 11. Expansão de Domínio, poderes de cenário e 30 testes obrigatórios (16/11, noite) — v=31
+Pedido do Douglas: mais poderes para o personagem e para os monstros com efeito no cenário, e a "expansão de domínio" estilo anime, que muda o cenário para o estilo do monstro, parecendo chefe de jogo. Tudo feito pelo Claude.
+
+- **Domínio dos monstros**: elites (coroa 👑, do nível 20; 1 ou 2 por fase) e chefes abrem quando o jogador chega a ~700 px. Banner de cinema, paleta e fundo trocam (`DOM_TIPOS` no game.js), paredes prendem a arena por 9 s (exceto em "mundo dá a volta"). 6 domínios: Coração Negro Eterno, Mar da Tristeza, Labirinto Sem Fim, Jardim das Sombras, Reino do Gelo Eterno, Arena da Fúria. Quebra com 3 explosões no dono (4 no chefe) → ele fica tonto 3 s.
+- **Domínio do jogador** (nível 20, tecla G / botão ◎, 70 de energia): Santuário do Amor por 7 s — apaixona 2 tristes a cada 0,35 s, apaixonados não machucam, monstros dentro perdem 1 de vida a cada 1,5 s, corações negros somem. Abrir com um domínio de monstro ativo = **choque de domínios** (o do monstro quebra).
+- **Poderes novos**: Ponte de coração (13), Jardim do amor (16), Terremoto do amor (21), Tempo lento (24).
+- **Monstros novos**: gelador (nível 24+), rachador (27+), sombrio (30+).
+- **Regra do GitHub** (Douglas, 16/11): `index.html` escolhe celular/PC; `INICIAR_JOGO.bat` + `ferramentas/servidor_local.ps1` (copiado do LAB v15); pré-carregamento com bolinha girando e % em `desktop.html`/`mobile.html`; aparelho fraco começa no modo leve (`window.__FRACO`).
+
+### Furos achados pela bateria dos 30 testes e corrigidos (detectado e corrigido pelo Claude)
+| Teste | Problema | Correção |
+|---|---|---|
+| 17 | A barreira de amor não segurava os corações negros | tiro que bate na barreira some |
+| 16 | No modo infinito, sair da porta perto de um monstro reiniciava a fase (a proteção de 0,7 s e a do dash não valiam) | `player.protT` vale nos dois modos |
+| 14 | Saindo de uma porta, outra porta perto engolia de novo (portas em cadeia) | as outras ficam calmas 1,5 s; duplas novas não nascem coladas |
+| 28 | Coração fujão podia ficar parado numa plataforma fora do alcance | depois de 3 s ele pula para uma plataforma alcançável; cascata só em plataforma alcançável |
+| 27 | Tentáculo podia nascer tapando a saída | sorteia de novo longe da saída |
+| 26 | Tristes/monstros nasciam em plataforma de grupo que saía de baixo deles no 1º passo | nascem só em plataforma fixa |
+
+Os outros "falhos" das primeiras rodadas eram do robô de teste (pulo sem soltar o botão, câmera longe, sementes diferentes) e foram corrigidos no teste, não no jogo. Resultado final: **47/47** em 4 rodadas com sementes diferentes, mais 450 mil passos de estresse por rodada com poderes e domínios ao acaso (0 erros). Teste como usuário no Edge sem janela: tecla G abre o domínio, Q passa pelos poderes novos, toque no ◎ abre no celular.

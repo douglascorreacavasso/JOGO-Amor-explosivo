@@ -93,9 +93,14 @@ const UNLOCKS=[
   {lv:7,  id:'shot',    icon:'💘', name:'DISPARO DE AMOR',   pc:'aperte E', mob:'botão ★', what:'Lança um coração pra frente: apaixona os tristes e fere monstros. 24 de energia.'},
   {lv:10, id:'divine',  icon:'✨', name:'AMOR DIVINO',       pc:'aperte F com a energia CHEIA', mob:'botão ✨ (aparece com a energia cheia)', what:'Apaixona TODOS e destrói TODOS os monstros da fase. Gasta a energia inteira.'},
   {lv:12, id:'wave',    icon:'🌊', name:'ONDA DE AMOR',      pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Uma onda pelo chão pros dois lados. 34 de energia.'},
+  {lv:13, id:'ponte',   icon:'🌉', name:'PONTE DE CORAÇÃO',  pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Cria uma plataforma de coração por 6 s: na sua frente e um degrau acima, ou embaixo dos seus pés se você estiver caindo. 20 de energia.'},
+  {lv:16, id:'jardim',  icon:'🌷', name:'JARDIM DO AMOR',    pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Nascem flores e corações nas 5 plataformas mais perto: quebra os espinhos, atrai os tristes, e apaixonado que pega um coração para de te seguir. 30 de energia.'},
   {lv:15, id:'shield',  icon:'🛡️', name:'ESCUDO',            pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'5 s sem levar dano e empurrando quem chega perto. 40 de energia.'},
   {lv:18, id:'laser',   icon:'🔆', name:'LASER DE AMOR',     pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Raio instantâneo na linha em que você está; você fica parado 1,6 s. 46 de energia.'},
+  {lv:20, id:'dominio', icon:'🌸', name:'EXPANSÃO DE DOMÍNIO', pc:'aperte G (com 70 de energia)', mob:'botão ◎ (aparece com 70 de energia)', what:'Por 7 s o cenário vira o seu SANTUÁRIO DO AMOR: os tristes por perto se apaixonam sozinhos, os apaixonados ficam calmos (não machucam) e os monstros dentro perdem vida. Se um monstro abrir o domínio dele, abra o seu para QUEBRAR o dele.'},
+  {lv:21, id:'terremoto',icon:'🌋', name:'TERREMOTO DO AMOR', pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'O chão treme em volta de você: monstros pulam, ficam tontos e perdem 1 de vida; pregos giram, espinhos quebram e os blocos caem. 40 de energia.'},
   {lv:22, id:'rain',    icon:'🌧️', name:'CHUVA DE AMOR',     pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Chovem corações na tela por 2,6 s. 38 de energia.'},
+  {lv:24, id:'tempo',   icon:'⏳', name:'TEMPO LENTO',        pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Por 4 s tudo fica em câmera lenta (monstros, apaixonados, tiros e plataformas que se mexem), menos você. 45 de energia.'},
   {lv:26, id:'guard',   icon:'💚', name:'CORAÇÃO DE PROTEÇÃO', pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Um coração te segue por 30 s e segura 3 golpes. 42 de energia.'},
   {lv:30, id:'electric',icon:'⚡', name:'AMOR ELÉTRICO',     pc:'E (troque com Q)', mob:'★ (troque com ⇄)', what:'Nuvem-coração que solta raios por 4 s. 44 de energia.'},
 ];
@@ -204,6 +209,9 @@ function genLevel(n){
     if(d>=13) cfg.camaCount    = Math.min(1+Math.floor((d-13)/12), 3);   // CAMALEÃO: quase invisível
     if(d>=17) cfg.diviCount    = Math.min(1+Math.floor((d-17)/12), 3);   // DIVISOR: vira dois
     if(d>=21) cfg.piscCount    = Math.min(1+Math.floor((d-21)/12), 2);   // PISCA-PISCA: teleporta perto de você   // ARQUITETO: muda plataformas de lugar de propósito
+    if(d>=19) cfg.gelCount     = Math.min(1+Math.floor((d-19)/12), 2);   // GELADOR: congela as plataformas perto
+    if(d>=22) cfg.rachCount    = Math.min(1+Math.floor((d-22)/12), 2);   // RACHADOR: pisa forte e as plataformas perto caem
+    if(d>=25) cfg.sombCount    = Math.min(1+Math.floor((d-25)/14), 2);   // SOMBRIO: apaga a luz em volta dele
     if(n>=20 && n%20===0) cfg.bossCount = 1;
   }
   const mut=director(n);                                                 // MINI-AI: muda as regras deste nível
@@ -216,7 +224,7 @@ function genLevel(n){
   cfg.especial=(plano.tipo==='especial'&&ESPECIAIS[plano.id])?Object.assign({id:plano.id,nivel:Math.min(4,plano.vez||1)},ESPECIAIS[plano.id]):null;
   cfg.objetivo=isCollect?'coletar':(cfg.especial?cfg.especial.obj:'apaixonar');
   if(cfg.especial){ const E=cfg.especial, f=[0.4,0.6,0.85,1][E.nivel-1];             // 1ª vez = aprender (menos inimigos); depois combina
-    for(const k of ['chaserCount','shooterCount','eaterCount','dogCount','sphereCount','spikerCount','beamerCount','tentacleCount','moverCount','tristCount','camaCount','diviCount','piscCount']) if(cfg[k]) cfg[k]=Math.floor(cfg[k]*f);
+    for(const k of ['chaserCount','shooterCount','eaterCount','dogCount','sphereCount','spikerCount','beamerCount','tentacleCount','moverCount','tristCount','camaCount','diviCount','piscCount','gelCount','rachCount','sombCount']) if(cfg[k]) cfg[k]=Math.floor(cfg[k]*f);
     cfg.bossCount=0;
     if(E.id==='gravLeve'){ cfg.grav*=0.62; cfg.baseJump=cfg.playerJump=cfg.playerJump*0.86; }
     if(E.id==='gelo') mut.ice=true;
@@ -289,8 +297,8 @@ let level=1, explodedCount=0, totalSad0=0;
 let mode='adventure', lives=3, deaths=0, deepest=1;
 let WORLD_W=0, WORLD_H=0, groundY=0, cfg=null, PAL=PAL_NIGHT, VIGN=0, M={tags:[]};
 let player, npcs, monsters, shots, loveShots, waves, lasers, loveRain, divineFx, elecRays, beams, spikesW, stickies, platforms, blasts, particles, ambient, walls, fhearts, pHearts, blocks, rock, carrying, echoes;
-let _divShown=false, phantomT=0, levelToken=0;
-let meta=null, subida=null, ventos=[], batida=null, enfeites=[], luzT=0, ultimaExplosao=null, escuro=false, FORCA=null, ouro=null, tristeT=0, portas=[], toastT=0, toastTxt='', toastCol='#fff', avisoMonstros=false, explodidos=0;   // portas do nada, avisos na tela, quem explodiu de amor
+let _domShown=false, _divShown=false, phantomT=0, levelToken=0;
+let dominio=null, lentoT=0, meta=null, subida=null, ventos=[], batida=null, enfeites=[], luzT=0, ultimaExplosao=null, escuro=false, FORCA=null, ouro=null, tristeT=0, portas=[], toastT=0, toastTxt='', toastCol='#fff', avisoMonstros=false, explodidos=0;   // portas do nada, avisos na tela, quem explodiu de amor
 // paleta 'pastel' do CIS (CIS - Clone Imagem Site\paleta_area.py, PRESETS['pastel']) — deixa as fases mais fofas
 const PASTEL=['#ffd6e0','#c3f0ca','#cde7ff','#fff1c1'];
 function toast(txt,seg,col){ toastTxt=txt; toastT=seg||2.6; toastCol=col||'#ff8fab'; drawDirty=true; }
@@ -330,7 +338,7 @@ const IA=(function(){ const K='amorExplosivo_ia_v1';
 const OPC=(()=>{ try{ const s=typeof localStorage!=='undefined'?localStorage.getItem('amorExplosivo_opcoes'):null; const o=s?JSON.parse(s):{}; return {reduz:!!(o&&o.reduz)}; }catch(e){ return {reduz:false}; } })();   // acessibilidade
 function salvaOPC(){ try{ localStorage.setItem('amorExplosivo_opcoes',JSON.stringify(OPC)); }catch(e){} }
 const ICON_PERSO={romantico:'😍',carente:'🥺',ciumento:'😠',timido:'😳',impulsivo:'🤪',calculista:'🧐'};
-const NOME_FONTE={tristonho:'tristonho',camaleao:'camaleão',divisor:'divisor',piscador:'pisca-pisca',arquiteto:'arquiteto',chaser:'perseguidor',shooter:'atirador',eater:'comilão',dog:'cão sombrio',sphere:'esfera chorona',spiker:'espinhos',beamer:'feixe',tentacle:'tentáculo',boss:'chefe gigante'};
+const NOME_FONTE={gelador:'gelador',rachador:'rachador',sombrio:'sombrio',tristonho:'tristonho',camaleao:'camaleão',divisor:'divisor',piscador:'pisca-pisca',arquiteto:'arquiteto',chaser:'perseguidor',shooter:'atirador',eater:'comilão',dog:'cão sombrio',sphere:'esfera chorona',spiker:'espinhos',beamer:'feixe',tentacle:'tentáculo',boss:'chefe gigante'};
 const dist=(ax,ay,bx,by)=>Math.hypot(ax-bx,ay-by);
 const overlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(RNG()*(i+1)); const t=a[i];a[i]=a[j];a[j]=t; } return a; }
@@ -388,6 +396,7 @@ function later(ms,fn){ const tok=levelToken; setTimeout(()=>{ if(tok===levelToke
 
 // ===== [RENDER] qualidade automática: se o aparelho engasga, baixa a resolução e as partículas =====
 const Q={ tier:2, partCap:220, ema:16, work:4, slowN:0, fastN:0 };
+if(typeof window!=='undefined' && window.__FRACO){ Q.tier=1; Q.partCap=140; }   // aparelho fraco (pouca memória/núcleos): já começa no modo leve
 function dprForTier(){ const dev=window.devicePixelRatio||1; return Math.min(dev, [0.75,1.15,MOBILE?1.6:2][Q.tier]); }
 function qualityTick(interval, work){
   if(interval>0 && interval<100){ Q.ema=Q.ema*0.95+interval*0.05; }
@@ -464,14 +473,14 @@ function mkMonster(x,y,kind){ kind=kind||'chaser';
   let sc=cfg.monsterScale*(kind==='eater'?1.2:(kind==='shooter'?1.05:1));
   if(kind==='dog') sc*=0.8; if(kind==='boss') sc*=8;
   let hp=cfg.monsterHp; if(kind==='boss') hp=cfg.monsterHp*12; if(kind==='sphere') hp=cfg.monsterHp+1; if(kind==='tentacle') hp=cfg.monsterHp+1;
-  let sp=cfg.monsterSpeed*(kind==='shooter'?0.45:1); if(kind==='dog') sp=cfg.monsterSpeed*1.7; if(kind==='boss') sp=cfg.monsterSpeed*0.5; if(kind==='sphere') sp=cfg.monsterSpeed*0.45; if(kind==='spiker') sp=cfg.monsterSpeed*0.4; if(kind==='beamer') sp=cfg.monsterSpeed*0.32; if(kind==='tentacle') sp=0; if(kind==='arquiteto') sp=cfg.monsterSpeed*0.6; if(kind==='tristonho') sp=cfg.monsterSpeed*0.5; if(kind==='camaleao') sp=cfg.monsterSpeed*0.9; if(kind==='piscador') sp=cfg.monsterSpeed*0.4; if(kind==='divisor') hp=cfg.monsterHp+1;
+  let sp=cfg.monsterSpeed*(kind==='shooter'?0.45:1); if(kind==='dog') sp=cfg.monsterSpeed*1.7; if(kind==='boss') sp=cfg.monsterSpeed*0.5; if(kind==='sphere') sp=cfg.monsterSpeed*0.45; if(kind==='spiker') sp=cfg.monsterSpeed*0.4; if(kind==='beamer') sp=cfg.monsterSpeed*0.32; if(kind==='tentacle') sp=0; if(kind==='arquiteto') sp=cfg.monsterSpeed*0.6; if(kind==='tristonho') sp=cfg.monsterSpeed*0.5; if(kind==='camaleao') sp=cfg.monsterSpeed*0.9; if(kind==='piscador') sp=cfg.monsterSpeed*0.4; if(kind==='divisor') hp=cfg.monsterHp+1; if(kind==='gelador') sp=cfg.monsterSpeed*0.7; if(kind==='rachador'){ sp=cfg.monsterSpeed*0.55; hp=cfg.monsterHp+1; } if(kind==='sombrio') sp=cfg.monsterSpeed*0.8;
   let w=30*sc, h=42*sc; if(kind==='tentacle'){ w=44*cfg.monsterScale; h=130*cfg.monsterScale; }
   if(kind!=='boss'&&kind!=='tentacle'){ const sv=0.82+RNG()*0.55; w*=sv; h*=sv; }
   const dd2=Math.max(0,level-5);
   return { x,y, w, h, vx:0, vy:0, onGround:false, platRef:null, kind,
   hp, maxHp:hp, sp, hitT:0, float:(kind==='sphere'), grabCD:rand(0.5,1.6),
   arms:Math.min(2+Math.floor(dd2/15),5), sway:rand(0,6.28),
-  fireT:rand(0.4,cfg.shooterRate||2), beamCD:rand(2.5,4.5), spikeCD:rand(2.5,4), stickyCD:rand(3,6), phantomCD:rand(7,11), moveCD:rand(2.5,4.5), beam:null, ringCD:rand(4,6), ringT:0, blinkCD:rand(3,5), visT:0, alvoP:null, estr:null, estrT:0,
+  fireT:rand(0.4,cfg.shooterRate||2), beamCD:rand(2.5,4.5), spikeCD:rand(2.5,4), stickyCD:rand(3,6), phantomCD:rand(7,11), moveCD:rand(2.5,4.5), beam:null, ringCD:rand(4,6), ringT:0, blinkCD:rand(3,5), visT:0, alvoP:null, estr:null, estrT:0, domCD:rand(6,10), stun:0, geloCD:rand(3,5), pisaCD:rand(4,6), pisaT:0,
   bob:rand(0,6.28), eye:rand(0,6.28), grow:0, seed:(RNG()*1e9)|0, twin:(kind!=='boss'&&kind!=='tentacle'&&RNG()<0.12) }; }
 const HEART_POOL=['fast','ghost','tough','crybaby','solid','snake','splitter','eater','saltador','dorminhoco','camaleao','imitador','teleporte','rei'];
 function heartKind(){ if(cfg.type!=='collect') return 'normal';
@@ -511,8 +520,9 @@ function spawnHeart(x,y,falling,forceType){ const big=(cfg.type==='collect'); co
   seed:(RNG()*1e9)|0, vshape, vtwin:(big&&!persona&&RNG()<0.12) }; if(type==='rei'){ h.s*=1.5; h.w*=1.5; h.h*=1.5; } fhearts.push(h); return h; }
 function spawnHeartScattered(forceType){
   let x,y;
-  if(platforms.length && RNG()<0.7){ const p=platforms[Math.floor(rand(0,platforms.length))]; x=clamp(p.x+rand(0,Math.max(2,p.w-40)),20,WORLD_W-60); y=p.y-62; }
-  else { x=rand(60,WORLD_W-60); y=rand(120,groundY-110); }
+  const alc=platforms.filter(q=>q.alc!==false&&q.band!==99);
+  if(alc.length && RNG()<0.7){ const p=alc[Math.floor(rand(0,alc.length))]; x=clamp(p.x+rand(0,Math.max(2,p.w-40)),20,WORLD_W-60); y=p.y-62; }
+  else { x=rand(60,WORLD_W-60); y=rand(groundY-260,groundY-110); }   // no ar: perto do chão (nunca cai numa plataforma fora do alcance)
   const h=spawnHeart(x,y,false,forceType); h.rest=false; return h; }
 function spawnPHeart(x,y){ const w=50,h=58; pHearts.push({ x:clamp(x-w/2,2,WORLD_W-w-2), y:y-h, w, h,
   vy:rand(-2,1), col:HEART_COLORS[Math.floor(rand(0,HEART_COLORS.length))], sw:rand(0,6.28), rest:false }); }
@@ -559,7 +569,7 @@ function buildLevel(n){
     if(_bp) _bp.style.display=player.powers.length?'flex':'none';
     if(_bc) _bc.style.display=player.powers.length>1?'flex':'none';
     const _bd=document.getElementById('bDash'); if(_bd) _bd.style.display=unlocked('dash',level)?'flex':'none'; }
-  npcs=[];monsters=[];shots=[];loveShots=[];waves=[];lasers=[];loveRain=[];divineFx=null;elecRays=[];beams=[];spikesW=[];stickies=[];phantomT=0;blasts=[];particles=[];walls=[];ambient=[];fhearts=[];pHearts=[];blocks=[];rock=null;carrying=0;rainTimer=0;echoes=[];portas=[];ouro=null;meta=null;subida=null;ventos=[];batida=null;enfeites=[];luzT=0;escuro=false;ultimaExplosao=null;avisoMonstros=false;explodidos=0;toastT=0;
+  npcs=[];monsters=[];shots=[];loveShots=[];waves=[];lasers=[];loveRain=[];divineFx=null;elecRays=[];beams=[];spikesW=[];stickies=[];phantomT=0;blasts=[];particles=[];walls=[];ambient=[];fhearts=[];pHearts=[];blocks=[];rock=null;carrying=0;rainTimer=0;echoes=[];portas=[];ouro=null;dominio=null;lentoT=0;meta=null;subida=null;ventos=[];batida=null;enfeites=[];luzT=0;escuro=false;ultimaExplosao=null;avisoMonstros=false;explodidos=0;toastT=0;
   shake=0;time=0;lookX=0;
   for(let i=0;i<18;i++) ambient.push({x:Math.random(),y:Math.random(),s:rand(8,18),sp:rand(.0006,.0016),sw:rand(0,6.28)});
 
@@ -614,6 +624,7 @@ function buildLevel(n){
   addStructures(cfg.archCount||0, nBands);
 
   const reach=computeReachable();
+  platforms.forEach((p,i)=>{ p.alc=!!reach[i]; });
   const statics=platforms.filter((p,i)=>!p.mv && reach[i]);
   const reachAny=platforms.filter((p,i)=>reach[i]);
 
@@ -631,11 +642,12 @@ function buildLevel(n){
     for(let i=0;i<Math.min(nGira,pool.length);i++){ const p=pool[i]; p.gira={ang:0,av:0,load:0,fase:'parado',t:0,dir:1}; p.tilt=0; p.flor=0; } }
   // PORTAS DO NADA: em pares, bem longe uma da outra, em plataformas firmes. Aparecem do nada e te engolem no meio do pulo
   portas=[];
-  if(level>=2 && RNG()<0.55){ const firm=statics.filter(p=>!p.gira&&!p.blink&&!p.arch&&!p.tilt&&p.w>=100);   // portinha só em plataforma reta, em qualquer fase
+  if(level>=2 && RNG()<0.55){ const firm0=statics.filter(p=>!p.gira&&!p.blink&&!p.arch&&!p.tilt&&p.w>=100); let firm=firm0;   // portinha só em plataforma reta, em qualquer fase
     const pares=1+((level>15&&RNG()<0.4)?1:0);
     for(let k=0;k<pares && firm.length>2;k++){ const a=firm[Math.floor(RNG()*firm.length)]; let b=null;
       for(let tt=0;tt<30;tt++){ const c=firm[Math.floor(RNG()*firm.length)]; if(Math.abs(c.x-a.x)>WORLD_W*0.35){ b=c; break; } }
       if(!b) continue; const i=portas.length;
+      firm=firm.filter(p=>Math.abs(p.x-a.x)>420&&Math.abs(p.x-b.x)>420);
       for(const [p,par] of [[a,i+1],[b,i]]){ p.temPorta=true; const hx=clamp(p.x+p.w/2-20,4,WORLD_W-44), hy=p.y;
         portas.push({x:hx,y:hy,hx,hy,w:40,h:62,par,estado:'oculta',a:0,abre:0,cd:0}); } } }
   // PONTES QUE QUEBRAM: ficou parado ~meio segundo em cima, ela racha e cai; volta depois de 4 s (nunca a escada)
@@ -650,7 +662,7 @@ function buildLevel(n){
   // ===== [FASES ESPECIAIS] cada uma monta a sua mecânica central (e combina com as conhecidas nas vezes seguintes) =====
   { const ESP=cfg.especial, nv=ESP?ESP.nivel:0;
     const livres=()=>platforms.filter(p=>!p.spine&&!p.mv&&!p.gira&&!p.blink&&!p.fragil&&!p.temPorta&&p.band>=1&&p.band!==99);
-    const addPar=()=>{ const firm=statics.filter(p=>!p.gira&&!p.blink&&!p.arch&&!p.tilt&&!p.temPorta&&p.w>=100); if(firm.length<4) return;
+    const addPar=()=>{ const firm=statics.filter(p=>!p.gira&&!p.blink&&!p.arch&&!p.tilt&&!p.temPorta&&p.w>=100&&!portas.some(d=>Math.abs(d.hx-p.x)<420&&Math.abs(d.hy-p.y)<300)); if(firm.length<4) return;
       const a=firm[Math.floor(RNG()*firm.length)]; let b=null; for(let tt=0;tt<30;tt++){ const c=firm[Math.floor(RNG()*firm.length)]; if(c!==a&&Math.abs(c.x-a.x)>WORLD_W*0.3){ b=c; break; } }
       if(!b) return; const i=portas.length; for(const [p,par] of [[a,i+1],[b,i]]){ p.temPorta=true; const hx=clamp(p.x+p.w/2-20,4,WORLD_W-44); portas.push({x:hx,y:p.y,hx,hy:p.y,w:40,h:62,par,estado:'oculta',a:0,abre:0,cd:0}); } };
     if(ESP){
@@ -659,7 +671,7 @@ function buildLevel(n){
       if(ESP.id==='elevadores'){ const pool=shuffle(livres()); for(let i=0;i<Math.floor(pool.length*0.35);i++){ const p=pool[i]; p.bx=p.x; p.by=p.y; p.tilt=0; p.flor=0; p.mv={mode:'pingY',ampx:0,ampy:VAMP,tsp:0.008+RNG()*0.006,dir:1,t:RNG()*2-1,pulse:false,pulseT:0,boost:1}; } }
       if(ESP.id==='musicais'){ batida={per:clamp(0.78-nv*0.06,0.5,0.78),t:0,n:0}; for(const p of livres()){ p.bx=p.x; p.by=p.y; p.tilt=0; p.mv={mode:'musica',A:clamp(VAMP*0.5,22,40),grupo:(p.band+Math.floor(p.x/600))%2}; } }
       if(ESP.id==='trampolins'){ const pool=shuffle(livres()); for(let i=0;i<Math.min(pool.length,8+nv*2);i++){ pool[i].trampolim={lado:(RNG()<0.2*nv?(RNG()<.5?-1:1):0),t:0}; pool[i].flor=0; pool[i].tilt=0; } }
-      if(ESP.id==='cascata'){ shuffle(livres().filter(p=>p.band>=nBands-5)).slice(0,4+nv).forEach(p=>{ p.cascata={carga:true,t:0}; p.flor=0; }); }
+      if(ESP.id==='cascata'){ shuffle(livres().filter(p=>p.band>=nBands-5&&p.alc)).slice(0,4+nv).forEach(p=>{ p.cascata={carga:true,t:0}; p.flor=0; }); }
       if(ESP.id==='escuridao') escuro=true;
       if(ESP.id==='vento'){ for(let k=0;k<2+nv;k++){ ventos.push({x:rand(WORLD_W*0.1,WORLD_W*0.85),w:rand(220,380),fx:(RNG()<.5?-1:1)*(0.22+0.05*nv),fy:RNG()<0.35?-0.55:0,troca:nv>=3?rand(7,10):0,t:0,aviso:0}); } }
       if(ESP.id==='fuga' || (ESP.id==='torre' && nv>=2)){ const alto=groundY-phBandH*nBands, tempo=Math.max(35,55+nBands*2.6-(ESP.id==='fuga'?nv*4:0)); subida={y:groundY+120, vel:(groundY+120-alto)/tempo, atraso:ESP.id==='fuga'?4:8}; }
@@ -675,24 +687,29 @@ function buildLevel(n){
     bx=clamp(bx,8,WORLD_W-bw-8);
     blocks.push({x:bx,y:p.y,w:bw,h:bh,state:'idle',t:0,vy:0,sw:rand(0,6.28)}); }
 
+  const fixos=reachAny.filter(p=>!p.mv); if(!fixos.length) fixos.push(platforms[0]);
   if(cfg.type==='love'){
     totalSad0=cfg.npc;
     for(let i=0;i<cfg.npc;i++){
       let x,y2;
       if(i<3){ x=rand(420,Math.min(1100,WORLD_W-60)); y2=groundY-44; }
-      else { const p=(reachAny[Math.floor(rand(0,reachAny.length))])||platforms[0]; x=clamp(p.x+rand(0,Math.max(2,p.w-32)),0,WORLD_W-30); y2=p.y-44; }
+      else { const p=(fixos[Math.floor(rand(0,fixos.length))])||platforms[0]; x=clamp(p.x+rand(0,Math.max(2,p.w-32)),0,WORLD_W-30); y2=p.y-44; }
       const sd=mkSad(x,y2); sd.x=clamp(sd.x,0,WORLD_W-sd.w); npcs.push(sd);   // tristes largos/gigantes não nascem metade fora do mundo
     }
     // monstros: em plataformas alcançáveis LONGE do começo (antes eram empurrados pra fora da plataforma)
     // CORAÇÃO DOURADO: pegou, a próxima explosão acalma TODOS os apaixonados por perto
-    ouro=null; if(level>=6 && RNG()<0.5){ const op=reachAny[Math.floor(rand(0,reachAny.length))]; if(op) ouro={x:op.x+op.w/2,y:op.y-34,sw:0}; }
-    const far=reachAny.filter(p=>p.x>900); const pool=far.length?far:reachAny;
+    ouro=null; if(level>=6 && RNG()<0.5){ const op=fixos[Math.floor(rand(0,fixos.length))]; if(op) ouro={x:op.x+op.w/2,y:op.y-34,sw:0}; }
+    const far=fixos.filter(p=>p.x>900&&!(meta&&Math.abs(p.x+p.w/2-(meta.x+meta.w/2))<p.w/2+90&&Math.abs(p.y-(meta.y+meta.h))<4)); const pool=far.length?far:fixos;   // nunca em cima da saída
     const spawnMon=(kind,cnt)=>{ for(let i=0;i<cnt;i++){ const p=pool[Math.floor(rand(0,pool.length))]||platforms[0];
       const mo=mkMonster(0,0,kind); mo.x=clamp(p.x+rand(0,Math.max(2,p.w-mo.w)), 900, WORLD_W-mo.w-10); mo.y=p.y-mo.h; monsters.push(mo); } };
     spawnMon('chaser',cfg.chaserCount); spawnMon('shooter',cfg.shooterCount); spawnMon('eater',cfg.eaterCount);
-    spawnMon('dog',cfg.dogCount); spawnMon('sphere',cfg.sphereCount); spawnMon('spiker',cfg.spikerCount); spawnMon('beamer',cfg.beamerCount); spawnMon('arquiteto',cfg.moverCount||0); spawnMon('tristonho',cfg.tristCount||0); spawnMon('camaleao',cfg.camaCount||0); spawnMon('divisor',cfg.diviCount||0); spawnMon('piscador',cfg.piscCount||0);
-    for(let i=0;i<cfg.tentacleCount;i++){ const tm=mkMonster(0,0,'tentacle'); tm.x=clamp(rand(1000,WORLD_W-160),60,WORLD_W-tm.w-40); tm.y=groundY-tm.h; monsters.push(tm); }
+    spawnMon('dog',cfg.dogCount); spawnMon('sphere',cfg.sphereCount); spawnMon('spiker',cfg.spikerCount); spawnMon('beamer',cfg.beamerCount); spawnMon('arquiteto',cfg.moverCount||0); spawnMon('tristonho',cfg.tristCount||0); spawnMon('camaleao',cfg.camaCount||0); spawnMon('divisor',cfg.diviCount||0); spawnMon('piscador',cfg.piscCount||0); spawnMon('gelador',cfg.gelCount||0); spawnMon('rachador',cfg.rachCount||0); spawnMon('sombrio',cfg.sombCount||0);
+    for(let i=0;i<cfg.tentacleCount;i++){ const tm=mkMonster(0,0,'tentacle'); tm.x=clamp(rand(1000,WORLD_W-160),60,WORLD_W-tm.w-40);
+      if(meta){ for(let k=0;k<12 && Math.abs(tm.x+tm.w/2-(meta.x+meta.w/2))<tm.w/2+meta.w/2+120;k++) tm.x=clamp(rand(1000,WORLD_W-160),60,WORLD_W-tm.w-40); } tm.y=groundY-tm.h; monsters.push(tm); }   // tentáculo nunca tapando a saída
     if(cfg.bossCount){ const bm=mkMonster(0,0,'boss'); bm.x=clamp(WORLD_W*0.6,200,WORLD_W-bm.w-40); bm.y=groundY-bm.h; monsters.push(bm); }
+    if(level>=20 && (!cfg.especial || cfg.especial.nivel>=3)){ const cand=shuffle(monsters.filter(m=>m.kind!=='boss'&&m.kind!=='tentacle'&&m.kind!=='sphere'&&m.kind!=='shooter'&&m.kind!=='beamer'&&m.kind!=='divisor'));
+      const ne=Math.min(cand.length, level>=45?2:1);
+      for(let i=0;i<ne;i++){ if(RNG()<0.35+Math.min(0.4,(level-20)*0.01)){ const m=cand[i], ow=m.w, oh=m.h; m.elite=true; m.w*=1.3; m.h*=1.3; m.y-=(m.h-oh); m.x=clamp(m.x-(m.w-ow)/2,0,WORLD_W-m.w); m.hp=m.maxHp=m.hp*2+1; m.domCD=rand(5,9); } } }
   } else {
     totalSad0=0;
     const bv=cfg.bonusVar||'tradicional';
@@ -756,8 +773,10 @@ function addStructures(count, nBands){
 
 // ===== MOTOR DAS BARRAS MÓVEIS + índice por faixa (colisão só com as barras perto) =====
 let platBuckets=null; const PBUCKET=70;
-function updatePlatforms(){ let algumMorto=false;
+function updatePlatforms(){ let algumMorto=false; const lentoPula=lentoT>0 && (Math.round(time*60)%3)!==0;
   for(const p of platforms){ p.dx=0; p.dy=0;
+    if(p.gelo>0) p.gelo-=STEP; if(p.tremor>0) p.tremor-=STEP;
+    if(p.ponte){ p.ponte.t-=STEP; p.warn=p.ponte.t<1.2; if(p.ponte.t<=0){ p.dead=true; algumMorto=true; puff(p.x+p.w/2,p.y,10,'#ffb3d1',3,10); continue; } }
     if(p.blink){ const b=p.blink; b.t+=STEP; const per=b.on+b.off, ph=b.t%per; p.solid = ph<b.on; p.warn = p.solid && ph>b.on-0.6; }
     if(p.gira){ const g=p.gira;       // prego no meio: parado → (pisou na beirada) inclina → GIRA ~90° → segura → volta sozinha
       if(g.fase==='parado'){ if(Math.abs(g.load)>0.01) g.av+=g.load*0.0025; else g.av-=g.ang*0.02; g.av*=0.9; g.ang+=g.av;
@@ -776,7 +795,7 @@ function updatePlatforms(){ let algumMorto=false;
         for(let k=0;k<3;k++) spawnPHeart(p.x+p.w/2+rand(-40,40), groundY); } } }
     if(p.shift){ const s=p.shift; if(s.warn>0) s.warn-=STEP;
       else { s.t=Math.min(1,s.t+STEP/0.8); const e=s.t<0.5?2*s.t*s.t:1-Math.pow(-2*s.t+2,2)/2; const nx=s.from+(s.to-s.from)*e; p.dx=nx-p.x; p.x=nx; p.cx=p.x+p.w/2; if(s.t>=1) p.shift=null; } }
-    const mv=p.mv; if(!mv) continue;
+    const mv=p.mv; if(!mv) continue; if(lentoPula) continue;   // TEMPO LENTO: as plataformas que se mexem andam 1/3
     if(mv.mode==='musica'){ const fase=batida?((batida.n+mv.grupo)%2):0, alvo=p.by+(fase?-mv.A:mv.A)*0.5, ny=p.y+(alvo-p.y)*0.2; p.dy=ny-p.y; p.y=ny; continue; }   // sobe/desce na batida
     if(mv.mode==='onda'||mv.mode==='grupoX'||mv.mode==='respira'){ mv.t+=STEP*mv.w; let nx=p.bx, ny=p.by;
       if(mv.mode==='onda') ny=p.by+mv.A*Math.sin(mv.t*2+mv.fase);                         // onda passando pelo grupo
@@ -856,6 +875,7 @@ function fireBlast(){
   if(dour){ player.dourado=false; puff(bx,by,30,'#ffd166',6,16); toast('✨ Explosão dourada: os apaixonados por perto ficaram calmos!',3,'#ffd166'); G('evento','explosao_dourada',null,true); }
   for(const mo of monsters.slice()){ if(mo.hitT<=0){ const dd=dist(bx,by,mo.x+mo.w/2,mo.y+mo.h/2);
     if(dd<maxR+Math.min(mo.w,mo.h)*0.3){ mo.hp--; mo.hitT=0.45; mo.vx+=Math.sign(mo.x-bx)*4; beep(180,0.12,'sawtooth',0.06);
+      if(dominio && dominio.dono==='monstro' && dominio.mo===mo){ dominio.hp--; puff(mo.x+mo.w/2,mo.y+mo.h/2,14,dominio.T.cor,5,14); if(dominio.hp<=0) fecharDominio(true); }
       if(mo.hp<=0) defeatMonster(mo); } } }
   // a explosão também DESTRÓI os corações negros por perto (antes a fala prometia isso e não acontecia)
   for(let i=shots.length-1;i>=0;i--){ const s=shots[i]; if(dist(bx,by,s.x,s.y)<maxR){ puff(s.x,s.y,5,'#b14cff',3,9); shots.splice(i,1); } }
@@ -905,7 +925,7 @@ function explodeBlock(bl){ const cx=bl.x+bl.w/2; shake=Math.min(22,shake+12);
   for(let i=0;i<28;i++){const a=rand(0,6.28),sp=rand(2,9);
     particles.push({x:cx,y:bl.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-rand(1,4),life:1,decay:rand(.008,.02),s:rand(9,20),col:HEART_COLORS[Math.floor(rand(0,8))]});}
   for(let i=0;i<3;i++) spawnPHeart(cx+rand(-30,30), groundY); }
-function defeatMonster(mo){ const i=monsters.indexOf(mo); if(i<0) return; monsters.splice(i,1); IA.premio(mo,-0.5);
+function defeatMonster(mo){ const i=monsters.indexOf(mo); if(i<0) return; monsters.splice(i,1); IA.premio(mo,-0.5); if(dominio && dominio.mo===mo) fecharDominio(true);
   G('evento','derrotou_monstro',[['monstro',NOME_FONTE[mo.kind]||mo.kind]],true);
   const cx=mo.x+mo.w/2, cy=mo.y+mo.h/2; shake=Math.min(24,shake+14);
   beep(140,0.3,'sawtooth',0.08); later(90,()=>beep(660,0.2,'sine',0.05));
@@ -934,6 +954,11 @@ function regrasDaFase(){ const L=[], obj=cfg.objetivo||'apaixonar';
   if(platforms.some(p=>p.trampolim)) L.push(['🦘','Trampolim','Pisou, ele te joga longe.']);
   if(ventos.length) L.push(['🌬️','Vento','As faixas com risquinhos te empurram no ar.']);
   if(subida) L.push(['⬆️','Ameaça que sobe','Encostar na nuvem de baixo = perder.']);
+  if(monsters.some(m=>m.elite||m.kind==='boss')) L.push(['👑','Expansão de domínio','O monstro com coroa (ou o chefe) troca o cenário pelo mundo dele e te prende na arena. 3 explosões nele quebram o domínio (4 no chefe).']);
+  if(unlocked('dominio')) L.push(['🌸','Seu domínio',(MOBILE?'Botão ◎':'Tecla G')+' com 70 de energia: 7 s de Santuário do Amor. Quebra o domínio de um monstro.']);
+  if(monsters.some(m=>m.kind==='gelador')) L.push(['🧊','Gelador','Plataforma congelada escorrega por 6 s.']);
+  if(monsters.some(m=>m.kind==='rachador')) L.push(['🪨','Rachador','O arco vermelho avisa: as plataformas perto caem por 4 s.']);
+  if(monsters.some(m=>m.kind==='sombrio')) L.push(['🌑','Sombrio','Escurece em volta dele; a explosão ilumina.']);
   return L; }
 function showRegras(){ const L=regrasDaFase();
   showScreen('<h1>Regras desta fase</h1><div class="tutGrid">'+L.map(r=>'<div class="card"><div class="cardIcon">'+r[0]+'</div><h3>'+r[1]+'</h3><p>'+r[2]+'</p></div>').join('')+'</div>'+BTN('rvolta','VOLTAR','',true),'tut-screen');
@@ -944,7 +969,7 @@ function pisouEspinhos(){ if(state!=='play') return;
   if(mode==='infinite'){ damagePlayer(player.x,'espinhos da plataforma'); return; }
   player.hp=0; updateHUD(); toast('💀 Você caiu nos espinhos!',3,'#ff5d5d'); die(); }
 function dash(){ if(state!=='play') return; if(!unlocked('dash')||player.dashCD>0||player.stam<15){ beep(120,0.08,'square',0.04); return; }
-  player.stam-=15; player.dashT=0.18; player.dashCD=0.7; player.invuln=Math.max(player.invuln,0.3); puff(player.x+player.w/2,player.y+player.h/2,10,'#ffb3d1',3,10);
+  player.stam-=15; player.dashT=0.18; player.dashCD=0.7; player.invuln=Math.max(player.invuln,0.3); player.protT=0.3; puff(player.x+player.w/2,player.y+player.h/2,10,'#ffb3d1',3,10);
   beep(700,0.08,'sine',0.05); G('evento','usou_poder',[['poder','dash']],true); }
 function placeWall(){ if(state!=='play') return;
   if(!unlocked('wall')){ beep(120,0.08,'square',0.04); return; }
@@ -963,8 +988,99 @@ const ACTIVE_POWERS={
   rain:{name:'Chuva de amor',   cost:38, fire:fireRain},
   guard:{name:'Coração de proteção', cost:42, fire:fireGuard},
   electric:{name:'Amor elétrico', cost:44, fire:fireElectric},
+  ponte:{name:'Ponte de coração', cost:20, fire:firePonte},
+  jardim:{name:'Jardim do amor',  cost:30, fire:fireJardim},
+  terremoto:{name:'Terremoto do amor', cost:40, fire:fireTerremoto},
+  tempo:{name:'Tempo lento',      cost:45, fire:fireTempo},
 };
-function powersForLevel(n){ return ['shot','wave','shield','laser','rain','guard','electric'].filter(id=>unlocked(id,n)); }
+function powersForLevel(n){ return ['shot','ponte','wave','jardim','shield','laser','terremoto','rain','tempo','guard','electric'].filter(id=>unlocked(id,n)); }
+// PONTE DE CORAÇÃO: plataforma de 6 s (na frente e um degrau acima; caindo = embaixo dos pés)
+function firePonte(){ const pw=150, ar=!player.onGround;
+  let x=ar?player.x+player.w/2-pw/2:player.x+player.w/2+player.face*120-pw/2, y=ar?player.y+player.h+6:player.y+player.h-Math.min(phBandH*0.95,JUMP_Hc*0.7);
+  x=clamp(x,4,WORLD_W-pw-4); y=clamp(y,80,groundY-20);
+  platforms.push({x,y,w:pw,h:14,band:99,cx:x+pw/2,hw:pw/2,mv:null,solid:true,tilt:0,extra:true,ponte:{t:6},ic:0,flor:0,flx:10});
+  puff(x+pw/2,y,14,'#ff8fab',3,12); beep(600,0.1,'sine',0.05); later(70,()=>beep(900,0.12,'sine',0.04)); }
+// JARDIM DO AMOR: corações e flores nas plataformas perto (limpa espinhos; apaixonado que pega coração se acalma)
+function fireJardim(){ const pcx=player.x+player.w/2, pcy=player.y+player.h/2, dd=p=>dist(pcx,pcy,p.x+p.w/2,p.y);
+  const ps=platforms.filter(p=>p.solid&&!p.dead&&!p.coracao&&!p.ponte&&p.band!==99&&dd(p)<560).sort((a,b)=>dd(a)-dd(b)).slice(0,5);
+  for(const p of ps){ spawnPHeart(p.x+p.w/2,p.y); const h=pHearts[pHearts.length-1]; h.y=p.y-h.h; h.vy=0; h.rest=true; h.on=p;
+    if(!p.mv&&!p.gira&&!p.arch&&!p.spine) p.flor=1+((p.ic|0)%3); p.espinhos=false; p.sujo=0; puff(p.x+p.w/2,p.y-10,10,'#c3f0ca',3,10); }
+  if(!ps.length) spawnPHeart(pcx,groundY);
+  beep(520,0.12,'sine',0.05); later(90,()=>beep(780,0.14,'sine',0.045)); G('evento','jardim',[['plataformas',String(ps.length)]],true); }
+// TERREMOTO DO AMOR: muda o cenário em volta
+function fireTerremoto(){ const pcx=player.x+player.w/2, pcy=player.y+player.h/2, R=720; shake=Math.min(34,shake+26);
+  beep(60,0.5,'sawtooth',0.08); later(120,()=>beep(90,0.4,'sawtooth',0.06));
+  for(const p of platforms){ if(Math.abs(p.x+p.w/2-pcx)>R||Math.abs(p.y-pcy)>R*0.8) continue; p.tremor=0.9;
+    if(p.espinhos){ p.espinhos=false; p.sujo=0; puff(p.x+p.w/2,p.y,8,'#ffd6e0',3,9); }
+    if(p.gira && p.gira.fase==='parado' && p!==player.platRef){ p.gira.fase='girando'; p.gira.dir=(p.x+p.w/2>pcx)?1:-1; p.gira.t=0; } }
+  for(const mo of monsters.slice()){ if(Math.abs(mo.x+mo.w/2-pcx)>R||Math.abs(mo.y-pcy)>R*0.8) continue; mo.stun=Math.max(mo.stun||0,1.6);
+    if(!mo.float && mo.kind!=='tentacle'){ mo.vy=-9; mo.onGround=false; } if(mo.hitT<=0){ mo.hp--; mo.hitT=0.4; if(mo.hp<=0) defeatMonster(mo); } }
+  for(const n of npcs){ if(Math.abs(n.x+n.w/2-pcx)>R||Math.abs(n.y-pcy)>R*0.8) continue; if(n.state==='happy') n.grace=Math.max(n.grace,1.4); if(n.onGround){ n.vy=-6; n.onGround=false; } }
+  for(const bl of blocks) if(bl.state==='idle' && dist(pcx,pcy,bl.x+bl.w/2,bl.y)<R*0.6){ bl.state='hit'; bl.t=1.2; }
+  for(let k=0;k<26;k++) particles.push({x:pcx+rand(-R*0.6,R*0.6),y:player.y+player.h,vx:rand(-1.5,1.5),vy:-rand(2,6),life:1,decay:rand(.02,.04),s:rand(6,12),col:k%2?'#c9a46b':'#ffd6e0'});
+  G('evento','terremoto',null,true); }
+// TEMPO LENTO: monstros, apaixonados, tiros e plataformas móveis a 1/3
+function fireTempo(){ lentoT=4; beep(300,0.3,'sine',0.06); later(150,()=>beep(200,0.4,'sine',0.05)); puff(player.x+player.w/2,player.y+player.h/2,16,'#bfe0ff',4,12); }
+
+// ===== EXPANSÃO DE DOMÍNIO (estilo anime): o cenário vira o mundo de quem abriu, com uma regra própria =====
+// Monstros de ELITE (coroa 👑) e chefes abrem quando você chega perto: paredes prendem a arena por alguns segundos.
+// Quebrar: 3 explosões no dono (4 no chefe), aguentar até acabar, ou abrir o SEU domínio (choque de domínios).
+const DOM_TIPOS={
+  coracaoNegro:{nome:'CORAÇÃO NEGRO ETERNO',  estilo:'void',  hue:345, cor:'#ff2e63', txt:'Chovem corações negros do céu!'},
+  tristeza:    {nome:'MAR DA TRISTEZA',       estilo:'static',hue:220, cor:'#9aa7c7', txt:'Você fica lento e os apaixonados voltam a ficar tristes!'},
+  labirinto:   {nome:'LABIRINTO SEM FIM',     estilo:'grid',  hue:190, cor:'#7fe0ff', txt:'As plataformas mudam de lugar sem parar!'},
+  sombras:     {nome:'JARDIM DAS SOMBRAS',    estilo:'eyes',  hue:280, cor:'#a58bff', txt:'A luz apagou: você só enxerga perto de você!'},
+  gelo:        {nome:'REINO DO GELO ETERNO',  estilo:'tiles', hue:195, cor:'#bfefff', txt:'Todas as plataformas congelaram: escorrega!'},
+  furia:       {nome:'ARENA DA FÚRIA',        estilo:'mirror',hue:0,   cor:'#ff5d5d', txt:'Os monstros ficam mais rápidos e soltam espinhos!'},
+  amor:        {nome:'SANTUÁRIO DO AMOR INFINITO', estilo:'stars', hue:330, cor:'#ff8fab', txt:'Os tristes se apaixonam e os monstros enfraquecem!'} };
+const DOM_CUSTO=70;
+function tipoDominio(mo){ if(!mo) return 'amor'; const k=mo.kind;
+  return k==='boss'?'coracaoNegro':(k==='tristonho'?'tristeza':(k==='arquiteto'?'labirinto':((k==='camaleao'||k==='sombrio')?'sombras':(k==='gelador'?'gelo':'furia')))); }
+function corA(hex,a){ const n=parseInt(hex.slice(1),16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+function abrirDominio(dono,mo){ if(state!=='play') return false;
+  if(dominio){ if(dono==='jogador' && dominio.dono==='monstro'){ fecharDominio(true,true); toast('💥 CHOQUE DE DOMÍNIOS! O seu amor quebrou o domínio do monstro!',4,'#ffd166'); G('evento','choque_dominios',null,true); }
+    else return false; }
+  const tipo=dono==='jogador'?'amor':tipoDominio(mo), T=DOM_TIPOS[tipo], R=700;
+  const cx=dono==='jogador'?player.x+player.w/2:mo.x+mo.w/2;
+  dominio={dono,mo:mo||null,tipo,T,t:0,dur:dono==='jogador'?7:9,aviso:dono==='jogador'?1.1:1.8,hp:(mo&&mo.kind==='boss')?4:3,
+    x0:Math.max(0,cx-R),x1:Math.min(WORLD_W,cx+R),prende:dono==='monstro'&&!M.wrap,tick:0.8,tick2:1.5,
+    velP:tipo==='tristeza'?0.72:1, velM:tipo==='furia'?1.45:(tipo==='amor'?0.6:1), orig:{PAL,style:M.style,fog:M.fog}};
+  PAL=palFromHue(T.hue,false); M.style=T.estilo; if(tipo==='sombras') M.fog=true; BD=null; FOG=null; buildBackdrop(); groundGrad=null; drawDirty=true;
+  if(tipo==='gelo') for(const p of platforms){ const c=p.x+p.w/2; if(c>dominio.x0&&c<dominio.x1) p.gelo=dominio.dur; }
+  shake=Math.min(30,shake+22); beep(dono==='jogador'?520:90,0.4,dono==='jogador'?'sine':'sawtooth',0.08); later(180,()=>beep(dono==='jogador'?780:60,0.5,dono==='jogador'?'sine':'sawtooth',0.07)); later(420,()=>beep(dono==='jogador'?1040:130,0.4,'triangle',0.06));
+  puff(cx,(mo?mo.y+mo.h/2:player.y+player.h/2),40,T.cor,8,18);
+  G('evento','dominio_aberto',[['dono',dono],['tipo',tipo]],dono==='jogador');
+  return true; }
+function fecharDominio(quebrado,silencioso){ const D=dominio; if(!D) return; dominio=null;
+  PAL=D.orig.PAL; M.style=D.orig.style; M.fog=D.orig.fog; BD=null; FOG=null; buildBackdrop(); groundGrad=null; drawDirty=true;
+  if(D.tipo==='gelo') for(const p of platforms) if(p.gelo>0) p.gelo=Math.min(p.gelo,1.5);
+  if(D.dono==='monstro' && quebrado && D.mo && monsters.indexOf(D.mo)>=0){ D.mo.stun=3; D.mo.hitT=0.5; }
+  if(silencioso) return;
+  if(D.dono==='monstro' && quebrado){ shake=Math.min(26,shake+16); beep(880,0.2,'sine',0.07); later(120,()=>beep(1320,0.25,'sine',0.06)); puff(player.x+player.w/2,player.y,26,'#ffd166',6,14);
+    toast('💖 Você QUEBROU o domínio! O monstro ficou tonto 💫',3.5,'#ffd166'); G('evento','dominio_quebrado',null,true); }
+  else toast(D.dono==='jogador'?'🌸 O seu domínio terminou':'O domínio acabou e o cenário voltou ao normal',2.5,'#cfe8ff'); }
+function usarDominio(){ if(state!=='play') return; if(!unlocked('dominio')||player.stam<DOM_CUSTO||(dominio&&dominio.dono==='jogador')){ beep(120,0.08,'square',0.04); return; }
+  player.stam-=DOM_CUSTO; abrirDominio('jogador',null); updateHUD(); }
+function dominioTick(dt){ const D=dominio; if(!D) return; D.t+=dt; if(D.aviso>0) D.aviso-=dt;
+  if(D.dono==='monstro' && (!D.mo || monsters.indexOf(D.mo)<0)){ fecharDominio(true); return; }
+  if(D.t>=D.dur){ fecharDominio(false); return; }
+  const dentro=e=>{ const ex=e.x+e.w/2; return ex>D.x0 && ex<D.x1 && Math.abs(e.y-player.y)<800; };
+  const pcx=player.x+player.w/2, pcy=player.y+player.h/2;
+  D.tick-=dt; D.tick2-=dt;
+  if(Q.tier>0 && Math.random()<0.5){ const col=D.tipo==='gelo'?'#ffffff':(D.tipo==='tristeza'?'#8a95b5':D.T.cor);
+    particles.push({x:camX+rand(0,W),y:D.tipo==='amor'?camY+H:camY-10,vx:rand(-0.5,0.5),vy:D.tipo==='amor'?-rand(3,5):rand(2,5),life:1,decay:.012,s:rand(5,10),col}); }
+  if(D.tipo==='coracaoNegro' && D.tick<=0 && D.aviso<=0){ D.tick=0.55;
+    for(let k=0;k<2 && shots.length<70;k++){ const sx=rand(Math.max(D.x0,camX),Math.min(D.x1,camX+W)); shots.push({x:sx,y:camY-10,vx:rand(-0.6,0.6),vy:4.2,life:0,maxLife:4,sw:rand(0,6.28)}); } }
+  if(D.tipo==='tristeza' && D.tick<=0 && D.aviso<=0){ D.tick=2.2; let alvo=null, bd=1e9;
+    for(const n of npcs){ if(n.state==='happy'&&!n.holding&&dentro(n)){ const d=dist(pcx,pcy,n.x+n.w/2,n.y+n.h/2); if(d<bd){ bd=d; alvo=n; } } }
+    if(alvo){ alvo.state='sad'; alvo.grace=0; alvo.perso=null; puff(alvo.x+alvo.w/2,alvo.y,10,'#8a8095',3,10); avisoMonstros=false; updateHUD(); } }
+  if(D.tipo==='labirinto' && D.tick<=0 && D.aviso<=0){ D.tick=1.3;
+    const pool=platforms.filter(p=>!p.spine&&!p.mv&&!p.gira&&p.band!==99&&!p.shift&&!p.temPorta&&p.solid&&p!==player.platRef&&dentro(p)&&dist(pcx,pcy,p.x+p.w/2,p.y)<650);
+    const p=pool[Math.floor(Math.random()*pool.length)]; if(p){ const dx=clamp((Math.random()<.5?-1:1)*rand(110,170),10-p.x,WORLD_W-p.w-10-p.x); p.shift={from:p.x,to:p.x+dx,t:0,warn:0.5}; } }
+  if(D.tipo==='furia' && D.tick<=0 && D.aviso<=0 && D.mo){ D.tick=2.8; if(spikesW.length<8) for(const dr of [-1,1]) spikesW.push({x:D.mo.x+D.mo.w/2,dir:dr,dist:0,maxDist:520}); beep(150,0.18,'square',0.05); }
+  if(D.tipo==='amor'){ for(let i=shots.length-1;i>=0;i--){ const s=shots[i]; if(s.x>D.x0&&s.x<D.x1){ puff(s.x,s.y,4,'#ff8fab',2,8); shots.splice(i,1); } }
+    if(D.tick<=0){ D.tick=0.35; for(let k=0;k<2;k++){ let alvo=null, bd=1e9; for(const n of npcs){ if(n.state==='sad'&&dentro(n)){ const d=dist(pcx,pcy,n.x+n.w/2,n.y+n.h/2); if(d<bd){ bd=d; alvo=n; } } } if(alvo) makeHappy(alvo,'domínio'); } }   // 2 por vez (até ~38 em 7 s)
+    if(D.tick2<=0){ D.tick2=1.5; for(const mo of monsters.slice()){ if(dentro(mo) && mo.hitT<=0){ mo.hp--; mo.hitT=0.4; puff(mo.x+mo.w/2,mo.y+mo.h/2,8,'#ff8fab',3,10); if(mo.hp<=0) defeatMonster(mo); } } } } }
 function usePower(){ if(state!=='play'||!player.powers.length)return; const id=player.powers[player.equip], P=ACTIVE_POWERS[id];
   if(player.stam<P.cost){ beep(120,0.08,'square',0.04); return; } player.stam-=P.cost; P.fire(); G('evento','usou_poder',[['poder',P.name]],true); updateHUD(); }
 function cyclePower(){ if(state==='play' && player.powers.length>1){ player.equip=(player.equip+1)%player.powers.length; beep(560,0.07,'sine',0.05); updateHUD(); } }
@@ -990,7 +1106,7 @@ function fireDivine(){ if(state!=='play'||player.stam<MAX_STAM||!unlocked('divin
   shake=Math.min(32,shake+26); beep(660,0.4,'sine',0.09); later(120,()=>beep(990,0.5,'sine',0.08));
   updateHUD(); checkWinLove(); }
 
-function damagePlayer(srcx,fonte){ if(state!=='play')return;
+function damagePlayer(srcx,fonte){ if(state!=='play')return; if(player.protT>0) return;   // proteção garantida (porta 0,7 s / dash) em qualquer modo
   if(player.shieldT<=0 && !(player.invuln>0 && mode!=='infinite')) G('evento','dano',[['fonte',fonte||'desconhecida']],false);
   if(player.shieldT>0) return;
   if(player.guard && player.guard.hp>0){ if(player.invuln>0) return; player.guard.hp--; player.invuln=0.6; shake=12; beep(520,0.12,'square',0.05);
@@ -1009,7 +1125,7 @@ function damagePlayer(srcx,fonte){ if(state!=='play')return;
 function update(dt){
   dt=STEP;
   time+=dt; player.stam=Math.min(MAX_STAM,player.stam+player.stamRegenLvl*dt);
-  if(player.invuln>0) player.invuln-=dt;
+  if(player.invuln>0) player.invuln-=dt; if(player.protT>0) player.protT-=dt;
   if(player.biteCD>0) player.biteCD-=dt;
   if(player.slowT>0){ player.slowT-=dt; if(player.slowT<=0) player.agility=1; }
   if(player.rootT>0) player.rootT-=dt;
@@ -1017,15 +1133,16 @@ function update(dt){
     const push=o=>{ const ox=o.x+o.w/2, oy=o.y+o.h/2, dd=Math.hypot(ox-pcx,oy-pcy); if(dd<R+Math.max(o.w,o.h)*0.4){ const a=Math.atan2(oy-pcy,ox-pcx); o.x=clamp(o.x+Math.cos(a)*6,0,WORLD_W-o.w); o.vy=Math.min(o.vy,-2); } };
     for(const n of npcs) if(n.state==='happy') push(n); for(const mo of monsters) if(mo.kind!=='tentacle'&&mo.kind!=='boss') push(mo); }
   updatePlatforms();
-  if(toastT>0) toastT-=dt; if(tristeT>0) tristeT-=dt; if(luzT>0) luzT-=dt;
+  if(toastT>0) toastT-=dt; if(tristeT>0) tristeT-=dt; if(luzT>0) luzT-=dt; if(lentoT>0) lentoT-=dt;
   if(batida && state==='play'){ batida.t+=dt; if(batida.t>=batida.per){ batida.t-=batida.per; batida.n++; beep(batida.n%2?880:660,0.05,'sine',0.025); } }   // ritmo das plataformas musicais
   if(state==='play') atualizarPortas(dt);
+  if(state==='play' && dominio) dominioTick(dt);
 
   if(state==='play'){
-    const slow=player.charging?0.5:1, stick=(player.stickT>0?0.35:1), mm=effMoveMax()*player.agility*stick*slow, jv=effJump()*(player.stickT>0?0.62:1);
+    const slow=player.charging?0.5:1, stick=(player.stickT>0?0.35:1), mm=effMoveMax()*player.agility*stick*slow*(dominio?dominio.velP:1), jv=effJump()*(player.stickT>0?0.62:1);
     // ANDAR: aceleração, virada rápida (frente↔trás sem patinar), atrito no chão e controle no ar
     const dir=(keys.right&&!keys.left)?1:((keys.left&&!keys.right)?-1:0);
-    const onG=player.onGround, ice=M.ice&&onG;
+    const onG=player.onGround, ice=(M.ice||(player.platRef&&player.platRef.gelo>0))&&onG;
     if(dir){ player.face=dir;
       let acc=phMove*slow*(onG?1:0.8)*(ice?0.45:1);
       if(player.vx*dir<0) acc*=(ice?1.3:2.6);                   // trocou de lado: freia e vira rápido
@@ -1056,6 +1173,7 @@ function update(dt){
     if(M.wrap){ if(nx<-player.w*0.5){ nx+=WORLD_W; wrapped=true; } else if(nx>WORLD_W-player.w*0.5){ nx-=WORLD_W; wrapped=true; } }
     else nx=clamp(nx,0,WORLD_W-player.w);
     player.x=nx; if(wrapped) wrapCam();
+    if(dominio && dominio.prende){ const cl=clamp(player.x,dominio.x0,dominio.x1-player.w); if(cl!==player.x){ player.x=cl; player.vx=0; } }   // a arena do domínio prende você
     if(player.onGround) ride(player);
     applyVertical(player);
     if(player.onGround) player.jumps=0;
@@ -1087,6 +1205,7 @@ function update(dt){
   const far=e=>Math.abs(e.x-ccx)>farX || Math.abs(e.y-ccy)>farY;
   for(let ni=npcs.length-1; ni>=0; ni--){ const n=npcs[ni]; if(!n) continue;
     if(n.state==='sad' && n.onGround && ((fc+ni)&3)!==0 && far(n)) continue;
+    if(lentoT>0 && ((fc+ni)%3)!==0) continue;   // tempo lento
     if(n.grace>0) n.grace-=dt; n.bob+=dt*6;
     if(n.state==='frozen'){ n.freezeT-=dt; n.shake+=dt; if(n.freezeT<=0){ explodeHappy(n); } continue; }
     if(n.state==='sad'){
@@ -1137,6 +1256,8 @@ function update(dt){
   // MONSTROS
   for(let mi=monsters.length-1; mi>=0; mi--){ const mo=monsters[mi]; if(!mo) continue; if(mo.hitT>0) mo.hitT-=dt; mo.bob+=dt*5;
     if(mo.kind!=='boss' && (mo.onGround||mo.float) && far(mo)) continue;
+    if(lentoT>0 && ((fc+mi)%3)!==0) continue;                                   // tempo lento
+    if(mo.stun>0){ mo.stun-=dt; if(!mo.float){ mo.vx*=0.85; mo.x=clamp(mo.x+mo.vx,0,WORLD_W-mo.w); ride(mo); applyVertical(mo); } continue; }   // tonto
     const px=player.x+player.w/2, nx=mo.x+mo.w/2, py=player.y+player.h/2, ny=mo.y+mo.h/2;
     if(mo.float){ // ESFERA CHORONA: flutua e prende o jogador
       mo.x=clamp(mo.x+(px-nx)*0.012,0,WORLD_W-mo.w); mo.y=clamp(mo.y+(py-60-ny)*0.012, 0, groundY-mo.h);
@@ -1153,7 +1274,7 @@ function update(dt){
     const foge=(mo.kind==='chaser'||mo.kind==='dog'||mo.kind==='eater'||mo.kind==='arquiteto') && player.charging && player.charge>0.35 && dist(px,py,nx,ny)<blastMaxR(player.charge)+60;
     if(foge){ alvoDir=-(Math.sign(px-nx)||1); if(mo.onGround && Math.random()<0.03){ mo.vy=phBaseJump*0.7; mo.onGround=false; } }
     else if(mo.kind==='arquiteto' && Math.abs(px-nx)<280) alvoDir=-alvoDir*0.5;           // o arquiteto mantém distância e mexe no cenário
-    mo.vx += (alvoDir*mo.sp*(IA.nivel()>3?1.08:1) - mo.vx)*0.12;
+    mo.vx += (alvoDir*mo.sp*(IA.nivel()>3?1.08:1)*(dominio?dominio.velM:1) - mo.vx)*0.12;
     if(mo.kind!=='shooter' && mo.kind!=='boss' && mo.kind!=='tentacle' && mo.onGround && player.y<mo.y-30 && Math.abs(px-nx)<260 && Math.random()<0.04){ mo.vy=phBaseJump*0.8; mo.onGround=false; }
     let bl=false; const mxx=clamp(mo.x+mo.vx,0,WORLD_W-mo.w);
     for(const w of walls){ if(mxx<w.x+w.w&&mxx+mo.w>w.x&&mo.y+mo.h>w.y&&mo.y<w.y+w.h){ bl=true; break; } }
@@ -1164,6 +1285,17 @@ function update(dt){
       if(!pp.espinhos && pp.sujo>7){ pp.espinhos=true; G('evento','nasceram_espinhos',null,false);
         if(!seen.espinhos){ seen.espinhos=1; toast('⚠️ Os monstros pisaram tanto que nasceram ESPINHOS! Cair neles mata — exploda pra quebrar',5,'#ff5d5d'); } } }
     const nearP=Math.abs(px-nx)<1300 && Math.abs(py-ny)<900;                       // só atacam quando você está por perto
+    if((mo.elite||mo.kind==='boss') && !dominio && state==='play' && Math.abs(px-nx)<700 && Math.abs(py-ny)<600){ mo.domCD-=dt; if(mo.domCD<=0){ mo.domCD=rand(28,36); abrirDominio('monstro',mo); } }
+    if(mo.kind==='gelador'){ mo.geloCD-=dt; if(mo.geloCD<=0 && nearP){ mo.geloCD=rand(4.5,6.5); let k=0;
+        for(const p of platforms){ if(dist(nx,ny,p.x+p.w/2,p.y)<340){ p.gelo=6; k++; } }
+        puff(nx,ny,16,'#e8fbff',4,10); beep(1200,0.12,'triangle',0.04);
+        if(k){ G('evento','monstro_congelou',null,false); if(!seen.geloAviso){ seen.geloAviso=1; toast('🧊 O gelador congelou as plataformas: elas escorregam!',4,'#bfefff'); } } } }
+    if(mo.kind==='rachador'){ if(mo.pisaT>0){ mo.pisaT-=dt; if(mo.pisaT<=0){ shake=Math.min(24,shake+12); beep(70,0.3,'square',0.06); let k=0;
+          for(const p of platforms){ if(p.spine||p.mv||p.gira||p.band===99||p.temPorta||p.coracao||p.trampolim||p.cascata||p===mo.platRef) continue;
+            if(dist(nx,mo.y+mo.h,p.x+p.w/2,p.y)<280){ p.fragil={peso:0,estado:'cai',t:0}; p.solid=false; k++; } }
+          puff(nx,mo.y+mo.h,18,'#c9a46b',5,12);
+          if(k){ G('evento','monstro_rachou',null,false); if(!seen.rachaAviso){ seen.rachaAviso=1; toast('🪨 O rachador pisou forte: as plataformas perto caíram! Voltam em 4 s',4,'#e0c08a'); } } } }
+      else { mo.pisaCD-=dt; if(mo.pisaCD<=0 && nearP && mo.onGround && Math.abs(px-nx)<700){ mo.pisaCD=rand(5.5,7.5); mo.pisaT=0.9; mo.vy=phBaseJump*0.5; mo.onGround=false; } } }
     if(mo.beam){ mo.beam.t-=dt; if(mo.beam.t<=0) mo.beam=null; }
     if(mo.kind==='arquiteto'){ mo.moveCD-=dt; if(mo.moveCD<=0 && nearP && state==='play'){ mo.moveCD=rand(3.5,6);
       // estratégia: empurra pra longe a plataforma para onde você está indo (à frente e acima de você)
@@ -1251,15 +1383,18 @@ function update(dt){
     if(player.elec && player.elec.t<=0) player.elec=null; }
   for(let i=elecRays.length-1;i>=0;i--){ elecRays[i].life-=dt; if(elecRays[i].life<=0) elecRays.splice(i,1); }
   { const want=(unlocked('divine') && player.stam>=MAX_STAM && state==='play'); if(want!==_divShown){ _divShown=want; const b=document.getElementById('bDiv'); if(b) b.style.display=want?'flex':'none'; } }
+  { const want=(unlocked('dominio') && player.stam>=DOM_CUSTO && state==='play' && !(dominio&&dominio.dono==='jogador')); if(want!==_domShown){ _domShown=want; const b=document.getElementById('bDom'); if(b) b.style.display=want?'flex':'none'; } }
 
   // projéteis (corações negros)
-  for(let i=shots.length-1;i>=0;i--){ const s=shots[i]; s.life+=dt; s.sw+=dt*6; s.x+=s.vx; s.y+=s.vy;
+  for(let i=shots.length-1;i>=0;i--){ const s=shots[i], lf=lentoT>0?0.35:1; s.life+=dt*lf; s.sw+=dt*6; s.x+=s.vx*lf; s.y+=s.vy*lf;
     if(s.life>=s.maxLife || s.x<-30 || s.x>WORLD_W+30 || s.y<-30 || s.y>WORLD_H+30){ shots.splice(i,1); continue; }
+    { let bate=false; for(const w of walls){ if(s.x>w.x-8&&s.x<w.x+w.w+8&&s.y>w.y-6&&s.y<w.y+w.h){ bate=true; break; } }
+      if(bate){ puff(s.x,s.y,6,'#b39ddb',3,9); shots.splice(i,1); continue; } }   // a barreira de amor segura o coração negro
     if(state==='play' && player.invuln<=0 && player.shieldT<=0 && overlap(player,{x:s.x-9,y:s.y-9,w:18,h:18})){ shots.splice(i,1); damagePlayer(s.x,'coração negro'); } }
 
   // contato com o jogador
   if(state==='play'){
-    for(const n of npcs){ if(n.state==='happy'&&n.grace<=0&&!n.stuck&&!n.holding&&overlap(player,n)){ damagePlayer(n.x+n.w/2,'abraço de apaixonado'); break; } }
+    for(const n of npcs){ if(n.state==='happy'&&n.grace<=0&&!n.stuck&&!n.holding&&!(dominio&&dominio.dono==='jogador')&&overlap(player,n)){ damagePlayer(n.x+n.w/2,'abraço de apaixonado'); break; } }
     for(const mo of monsters){ if(overlap(player,mo)){
         if(mode==='infinite'){ IA.premio(mo,1); damagePlayer(mo.x+mo.w/2,NOME_FONTE[mo.kind]||mo.kind); }
         else if(mo.kind==='dog'){ if(player.biteCD<=0){ player.biteCD=0.8; player.agility=Math.max(0.5,player.agility-0.05); player.slowT=4;
@@ -1296,6 +1431,8 @@ function update(dt){
       if(h.type==='teleporte'){ h.tpT=(h.tpT==null?rand(3,5):h.tpT)-dt;
         if(h.alvoTp){ h.alvoTp.t-=dt; if(h.alvoTp.t<=0){ puff(hcx,hcy,8,'#c77dff',3,8); h.x=h.alvoTp.x; h.y=h.alvoTp.y-h.h; h.rest=false; h.vy=0; h.alvoTp=null; } }
         else if(h.tpT<=0 && Math.abs(dx)<300 && platforms.length){ const p=platforms[Math.floor(Math.random()*platforms.length)]; h.alvoTp={x:clamp(p.x+p.w/2-h.w/2,2,WORLD_W-h.w-2),y:p.y,t:0.8}; h.tpT=rand(4,6); } }
+      if(h.rest && h.on && h.on.alc===false){ h.fora=(h.fora||0)+dt; if(h.fora>3){ const alc=platforms.filter(q=>q.alc&&q.solid&&!q.mv&&q.band!==99); const q=alc[Math.floor(Math.random()*alc.length)];
+          if(q){ puff(hcx,hcy,8,'#c77dff',3,8); h.x=clamp(q.x+q.w/2-h.w/2,2,WORLD_W-h.w-2); h.y=q.y-h.h; h.on=q; h.vy=0; puff(h.x+h.w/2,h.y+h.h/2,8,'#c77dff',3,8); } h.fora=0; } } else h.fora=0;   // nunca fica preso fora do alcance
       if(h.type==='rei'){ h.vx*=0.6; for(const o of fhearts){ if(o!==h && o.type!=='rei' && Math.abs(o.x-h.x)<260 && Math.abs(o.y-h.y)<200){ o.vx+=(h.vx*0.8-o.vx)*0.1+Math.sign(h.x-o.x)*0.05; } } }
       if(h.type==='crybaby' && (hcx<130||hcx>WORLD_W-130) && solo && Math.random()<0.05){ h.vy=-rand(7,10); h.rest=false; }   // medroso: encurralado, entra em pânico
       if(h.type==='crybaby'){ h.vx += Math.sin(time*9+h.wob)*1.2; if(Math.random()<0.06) particles.push({x:hcx,y:h.y+h.h,vx:rand(-1,1),vy:rand(0,2),life:1,decay:.05,s:rand(4,7),col:'#7fc8ff'}); }
@@ -1433,7 +1570,7 @@ function playerSpr(){ return cacheGet('player', ()=>bake(40,62,3,13,g=>{ const x
   g.fillStyle='#ff5d8f'; heartPath(g,cx,y-13,9); g.fill(); })); }
 function paintGenericMonster(g,mo,hit){
   const isBoss=mo.kind==='boss', R=srng(mo.seed), distm=clamp((level-5)/40,0,1);
-  const acc={shooter:'#b14cff',eater:'#ffcc00',beamer:'#ff2e63',spiker:'#d7dee6',arquiteto:'#7fe0ff',boss:'#ffd166',tristonho:'#9aa7c7',camaleao:'#7dffb0',divisor:'#ff9f43',piscador:'#c77dff'}[mo.kind]||'#ff3b6b';
+  const acc={gelador:'#9fe8ff',rachador:'#c9a46b',sombrio:'#a58bff',shooter:'#b14cff',eater:'#ffcc00',beamer:'#ff2e63',spiker:'#d7dee6',arquiteto:'#7fe0ff',boss:'#ffd166',tristonho:'#9aa7c7',camaleao:'#7dffb0',divisor:'#ff9f43',piscador:'#c77dff'}[mo.kind]||'#ff3b6b';
   const col=hit?'#fff':(isBoss?'#3a0820':'#241430');
   const rad=Math.min(mo.w,mo.h)/2;
   const shape=['blob','box','round','star','tear'][Math.floor(R()*5)];
@@ -1554,7 +1691,7 @@ function atualizarPortas(dt){ if(!portas.length) return;
     const dd=Math.hypot(pcx-(d.x+d.w/2), pcy-(d.y-d.h/2)); if(d.cd>0) d.cd-=dt;
     if(d.estado==='oculta'){ if(dd<300 && d.cd<=0){ d.estado='ativa'; beep(180,0.25,'sine',0.04); puff(d.x+d.w/2,d.y-d.h/2,8,'#c9a7ff',2,10); } continue; }   // aparece do nada
     d.a=Math.min(1,d.a+dt*3);
-    if(!player.onGround && dd<190){ const tx=pcx-d.w/2, ty=player.y+player.h+8;   // pulou a ~4 corpos dela: ela PULA em você como uma boquinha e se força a passar por você
+    if(!player.onGround && dd<190 && d.cd<=0){ const tx=pcx-d.w/2, ty=player.y+player.h+8;   // pulou a ~4 corpos dela: ela PULA em você como uma boquinha e se força a passar por você
       d.x+=(tx-d.x)*0.3; d.y+=(ty-d.y)*0.3; d.abre=Math.min(1,d.abre+dt*6); }
     else { d.abre=Math.max(0,d.abre-dt*1.5); d.x+=(d.hx-d.x)*0.03; d.y+=(d.hy-d.y)*0.03; if(dd>760){ d.estado='oculta'; d.a=0; d.x=d.hx; d.y=d.hy; } }
     d.x=clamp(d.x,0,WORLD_W-d.w); d.y=clamp(d.y,d.h+4,groundY);
@@ -1562,8 +1699,9 @@ function atualizarPortas(dt){ if(!portas.length) return;
 function atravessar(d){ const q=portas[d.par]; if(!q) return;
   puff(player.x+player.w/2,player.y+player.h/2,16,'#c9a7ff',4,12);
   player.x=clamp(q.hx+q.w/2-player.w/2,0,WORLD_W-player.w); player.y=Math.min(q.hy,groundY)-player.h-1; player.vx=0; player.vy=-3; player.onGround=false; player.platRef=null;
-  player.invuln=Math.max(player.invuln,0.7); player.jumps=Math.max(player.jumps,1);   // 0,7 s de proteção ao sair da porta
-  d.estado='usada'; q.estado='usada'; q.x=q.hx; q.y=q.hy; q.a=1; q.abre=1;                   // passou: as duas somem
+  player.invuln=Math.max(player.invuln,0.7); player.protT=0.7; player.jumps=Math.max(player.jumps,1);   // 0,7 s de proteção ao sair da porta
+  d.estado='usada'; q.estado='usada'; q.x=q.hx; q.y=q.hy; q.a=1; q.abre=1;
+  for(const o of portas) if(o.estado!=='usada') o.cd=Math.max(o.cd,1.5);   // as outras portas não te engolem logo na saída                   // passou: as duas somem
   camX=clamp(player.x+player.w/2+lookX-W/2,0,Math.max(0,WORLD_W-W)); camY=clamp(player.y+player.h/2-H*0.58,0,Math.max(0,WORLD_H-H));
   camPX=camX; camPY=camY; player.px=player.x; player.py=player.y; echoes.length=0;
   puff(player.x+player.w/2,player.y+player.h/2,16,'#c9a7ff',4,12); beep(300,0.2,'sine',0.06); later(90,()=>beep(900,0.25,'sine',0.05));
@@ -1640,7 +1778,7 @@ function draw(alpha){
     const topCol=p.mv?'#ffcf8a':(p.arch?'#9cffe6':(p.spine?'#ffc4d6':PASTEL[(p.ic|0)%4]));
     if(p.coracao){ ctx.globalAlpha=1; drawCoracaoPlat(p); continue; }
     if(p.fragil && p.fragil.estado==='cai') a*=clamp(1-p.fragil.t/0.8,0,1); ctx.globalAlpha=a;
-    let px=p.x, py=p.y+(p.dyVis||0); if(glitch && ((Math.floor(time*8)+Math.floor(p.x))%23===0)) px+=6;
+    let px=p.x, py=p.y+(p.dyVis||0); if(p.tremor>0 && !OPC.reduz) px+=Math.sin(time*70+p.x)*4*clamp(p.tremor,0,1); if(glitch && ((Math.floor(time*8)+Math.floor(p.x))%23===0)) px+=6;
     if(p.shift && p.shift.warn>0) px+=Math.sin(time*70)*3;                        // treme antes do arquiteto empurrar
     const ang=p.gira?p.gira.ang:p.tilt;
     if(ang){ ctx.save(); ctx.translate(px+p.w/2,p.y+p.h/2); ctx.rotate(ang); px=-p.w/2; py=-p.h/2; }
@@ -1648,6 +1786,8 @@ function draw(alpha){
     else { const sp=platSpr(p); ctx.drawImage(sp, px-sp._ax, py-sp._ay, p.w+4, sp._h);
       if(p.corner && !p.mv && !p.arch) { ctx.fillStyle=PAL.plat; roundRect(ctx,px,py-p.h*0.8,Math.min(p.w*0.25,18),p.h*0.8+4,5); ctx.fill(); } }
     if(!outline){ if(p.rosa){ ctx.fillStyle='rgba(255,120,170,'+Math.min(0.55,p.rosa*0.2)+')'; roundRect(ctx,px,py-2,p.w,p.h+4,7); ctx.fill(); }
+      if(p.gelo>0){ ctx.fillStyle='rgba(190,240,255,'+(0.55*clamp(p.gelo,0,1)).toFixed(2)+')'; roundRect(ctx,px,py-3,p.w,p.h+5,7); ctx.fill(); ctx.fillStyle='rgba(255,255,255,.8)'; for(let k=8;k<p.w-8;k+=26) ctx.fillRect(px+k,py-2,10,2); }
+      if(p.ponte){ ctx.fillStyle='rgba(255,120,170,.8)'; roundRect(ctx,px,py-2,p.w,p.h+4,7); ctx.fill(); for(let k=18;k<p.w;k+=38) drawHeart(px+k,py-1,11,'#fff0f5',false); }
       if(p.sujo>1){ ctx.fillStyle='rgba(20,0,20,'+Math.min(0.7,p.sujo/10).toFixed(2)+')'; roundRect(ctx,px,py-2,p.w,p.h+4,7); ctx.fill(); } }
     if(p.espinhos||p.sujo>4.5){ const hh=p.espinhos?13:13*clamp((p.sujo-4.5)/2.5,0,1); ctx.fillStyle='#1a0a1a'; ctx.strokeStyle='#b06ab0'; ctx.lineWidth=1.5;
       for(let sx=px+4;sx<px+p.w-8;sx+=12){ ctx.beginPath(); ctx.moveTo(sx,py); ctx.lineTo(sx+6,py-hh); ctx.lineTo(sx+12,py); ctx.closePath(); ctx.fill(); ctx.stroke(); } }
@@ -1727,7 +1867,15 @@ function draw(alpha){
     ctx.fillStyle='#fff'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.fillText(meta.tipo==='saida'?'SAÍDA':'TOPO',meta.x+meta.w/2,meta.y-10); }
   for(const d of portas) if(d.a>0.01 && inV(d.x-20,d.y-d.h-20,d.w+40,d.h+40)) drawPorta(d);
   if(ouro && inV(ouro.x-30,ouro.y-30,60,60)){ const b=Math.sin(ouro.sw*3)*4; drawGlow('rgba(255,209,102,.9)',ouro.x,ouro.y+b,34,0.6); drawHeart(ouro.x,ouro.y-14+b,28,'#ffd166',true); }
-  for(const mo of monsters) if(inV(mo.x-mo.w*0.6,mo.y-mo.h*0.6,mo.w*2.2,mo.h*2.2)) drawMonster(mo);
+  if(dominio && dominio.prende){ for(const wx of [dominio.x0,dominio.x1]){ if(wx<vx0-40||wx>vx1+40) continue; ctx.fillStyle=corA(dominio.T.cor,0.22+0.08*Math.sin(time*6)); ctx.fillRect(wx-16,vy0,32,vy1-vy0); ctx.fillStyle=corA(dominio.T.cor,0.8); ctx.fillRect(wx-3,vy0,6,vy1-vy0); } }   // paredes da arena
+  for(const mo of monsters){ if(mo.kind==='sombrio' && inV(mo.x-400,mo.y-400,mo.w+800,mo.h+800)){ const scx=mo.x+mo.w/2, scy=mo.y+mo.h/2, rr=luzT>0?140:330;   // SOMBRIO apaga a luz (as bordas continuam aparecendo)
+      drawGlow('rgba(4,0,10,1)',scx,scy,rr,0.92); ctx.fillStyle='rgba(255,214,224,.5)'; for(const p of platforms){ if(p.solid && Math.abs(p.x+p.w/2-scx)<rr+p.w/2 && Math.abs(p.y-scy)<rr) ctx.fillRect(p.x,p.y,p.w,2); } } }
+  for(const mo of monsters) if(inV(mo.x-mo.w*0.6,mo.y-mo.h*0.6,mo.w*2.2,mo.h*2.2)){ const dono=dominio&&dominio.mo===mo;
+    if(mo.elite||dono) drawGlow(dono?dominio.T.cor:'#ffd166',mo.x+mo.w/2,mo.y+mo.h/2,Math.max(mo.w,mo.h)*(dono?1.5:1.0),0.35+0.15*Math.sin(time*4));
+    if(mo.pisaT>0){ ctx.globalAlpha=0.5+0.4*Math.sin(time*25); ctx.strokeStyle='#ff5d5d'; ctx.lineWidth=3; ctx.setLineDash([10,8]); ctx.beginPath(); ctx.arc(mo.x+mo.w/2,mo.y+mo.h,280,Math.PI,2*Math.PI); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1; }
+    drawMonster(mo);
+    if(mo.elite) drawSpr(emojiSpr('👑'),mo.x+mo.w/2,mo.y-26+Math.sin(time*3)*2);
+    if(mo.stun>0) drawSpr(emojiSpr('💫'),mo.x+mo.w/2+(mo.elite?26:0),mo.y-26); }
   for(const n of npcs) if(inV(n.x-20,n.y-30,n.w+40,n.h+50)) drawNPC(n);
   if(subida && subida.y<vy1){ ctx.fillStyle='rgba(35,0,45,.84)'; ctx.fillRect(vx0,subida.y,vx1-vx0,vy1-subida.y+mg); ctx.fillStyle='rgba(140,60,170,.65)'; ctx.beginPath(); ctx.moveTo(vx0,subida.y+20);
     for(let x=vx0;x<=vx1;x+=40) ctx.lineTo(x,subida.y-8*Math.sin(x*0.02+time*3)); ctx.lineTo(vx1,subida.y+20); ctx.closePath(); ctx.fill(); }
@@ -1746,6 +1894,8 @@ function draw(alpha){
   if(VIG && Q.tier>1) ctx.drawImage(VIG,0,0,SCRW,SCRH);
   if(M.flicker&&!OPC.reduz){ const ph=(time*0.37+level*0.13)%1; if(ph<0.06 || (ph>0.09&&ph<0.11)){ ctx.fillStyle='rgba(0,0,0,.72)'; ctx.fillRect(0,0,SCRW,SCRH); } }
   if(phantomT>0){ ctx.fillStyle='rgba(120,0,60,'+(0.10+0.05*Math.sin(time*10)).toFixed(3)+')'; ctx.fillRect(0,0,SCRW,SCRH); }
+  if(lentoT>0){ ctx.fillStyle='rgba(120,170,255,'+(0.12*clamp(lentoT,0,1)).toFixed(3)+')'; ctx.fillRect(0,0,SCRW,SCRH); }   // tempo lento
+  if(dominio) drawDominioTela();
   if(tristeT>0){ ctx.fillStyle='rgba(40,30,60,'+(0.35*clamp(tristeT/1.2,0,1)).toFixed(3)+')'; ctx.fillRect(0,0,SCRW,SCRH); }   // tela fica triste quando alguém explode
   drawIndicators();
   if(toastT>0){ const al=clamp(toastT/0.4,0,1), fs=MOBILE?15:19; ctx.globalAlpha=al; ctx.font='bold '+fs+'px "Trebuchet MS",sans-serif';
@@ -1848,6 +1998,18 @@ function drawNPC(n){ const x=n.x,y=n.y,w=n.w,h=n.h,cx=x+w/2;
     if(n.holding) drawHeart(cx,yy-18,16,'#ff2e63',Q.tier>0); }
 }
 
+function drawDominioTela(){ const D=dominio, T=D.T;
+  ctx.fillStyle=corA(T.cor,(0.07+0.03*Math.sin(time*3)).toFixed(3)); ctx.fillRect(0,0,SCRW,SCRH);
+  const ap=clamp(D.aviso/0.5,0,1), barH=SCRH*0.1*clamp(D.aviso>0?1:0,0,1);
+  if(D.aviso>0){ ctx.globalAlpha=Math.min(1,ap+0.2); ctx.fillStyle='#000'; ctx.fillRect(0,0,SCRW,barH); ctx.fillRect(0,SCRH-barH,SCRW,barH);   // faixas pretas de cinema
+    const fs=MOBILE?24:44, cy=SCRH*0.44; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='bold '+Math.round(fs*0.45)+'px "Trebuchet MS",sans-serif'; ctx.fillStyle='#fff'; ctx.fillText(D.dono==='jogador'?'🌸 EXPANSÃO DE DOMÍNIO 🌸':'👑 EXPANSÃO DE DOMÍNIO 👑',SCRW/2,cy-fs*0.9);
+    ctx.font='bold '+fs+'px "Trebuchet MS",sans-serif'; ctx.lineWidth=6; ctx.strokeStyle='rgba(20,0,20,.85)'; ctx.strokeText(T.nome,SCRW/2,cy,SCRW-30); ctx.fillStyle=T.cor; ctx.fillText(T.nome,SCRW/2,cy,SCRW-30);
+    ctx.font='bold '+Math.round(fs*0.42)+'px "Trebuchet MS",sans-serif'; ctx.fillStyle='#fff'; ctx.fillText(T.txt,SCRW/2,cy+fs*0.9,SCRW-30); ctx.textBaseline='alphabetic'; ctx.globalAlpha=1; }
+  const bw=Math.min(300,SCRW-40), bx=SCRW/2-bw/2, by=SCRH-(MOBILE?92:104), fr=clamp(1-D.t/D.dur,0,1);   // barra do domínio
+  ctx.fillStyle='rgba(20,4,24,.8)'; roundRect(ctx,bx,by,bw,16,8); ctx.fill(); ctx.fillStyle=T.cor; roundRect(ctx,bx+2,by+2,(bw-4)*fr,12,6); ctx.fill();
+  ctx.font='bold '+(MOBILE?11:13)+'px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#fff';
+  ctx.fillText(D.dono==='jogador'?'🌸 SEU DOMÍNIO':'👑 '+T.nome+' · quebre: '+'💥'.repeat(Math.max(0,D.hp)),SCRW/2,by-6,SCRW-20); }
 function drawIndicators(){
   const pcx=player.x+player.w/2, pcy=player.y+player.h/2, list=[];
   if(cfg.type==='love'){ for(const n of npcs) if(n.state==='sad') list.push({x:n.x+n.w/2,y:n.y+n.h/2,icon:'😔',col:'#7fb0ff'});
@@ -1948,12 +2110,16 @@ function briefingCards(n){
       tristonho:['🌧️','TRISTONHO','De tempos em tempos solta uma onda cinza (um anel avisa antes) que deixa os apaixonados por perto TRISTES de novo.'],
       camaleao:['🦎','CAMALEÃO','Fica quase invisível e aparece de vez em quando. Procure o brilho fraquinho.'],
       divisor:['🧫','DIVISOR','Quando perde metade da vida, vira DOIS monstros menores.'],
+      gelador:['🧊','GELADOR','Congela as plataformas perto dele: em cima delas você escorrega (demora pra parar). O gelo derrete em 6 s.'],
+      rachador:['🪨','RACHADOR','Pula e pisa FORTE: um arco vermelho avisa, e as plataformas perto racham e caem por 4 s. A escada principal aguenta.'],
+      sombrio:['🌑','SOMBRIO','Apaga a luz em volta dele: tudo perto fica escuro (só a bordinha das plataformas brilha). Sua explosão ilumina.'],
       piscador:['🌀','PISCA-PISCA','Some e reaparece do seu lado. Um círculo roxo avisa onde ele vai surgir.'],
       boss:['👑','CHEFE GIGANTE','Muita vida. Às vezes deixa as plataformas fantasmas (você cai) e solta gosma que gruda — exploda a gosma. Use seus poderes!'] };
     const novos=Object.keys(MK).filter(k=>kinds[k] && !seen['mk:'+k]); novos.forEach(k=>seen['mk:'+k]=1);
     if(novos.length>2) cards.push({icon:'👹', tag:'MONSTROS NOVOS', big:novos.length+' MONSTROS NOVOS', sub:novos.map(k=>MK[k][0]+' <b>'+MK[k][1]+'</b>: '+MK[k][2]).join('<br>')});   // muitos de uma vez = 1 cartão só
     else novos.forEach(k=>cards.push({icon:MK[k][0], tag:'MONSTRO NOVO', big:MK[k][1], sub:MK[k][2]}));
   }
+  if(monsters.some(m=>m.elite||m.kind==='boss') && !seen.elite){ seen.elite=1; cards.push({icon:'👑', tag:'CUIDADO', big:'EXPANSÃO DE DOMÍNIO', sub:'Monstros com coroa 👑 (e os chefes) abrem um DOMÍNIO quando você chega perto: o cenário vira o mundo deles, com uma regra nova, e paredes prendem você na arena por uns segundos. Para quebrar: acerte 3 explosões no dono (4 no chefe), aguente até acabar'+(unlocked('dominio')?', ou abra o SEU domínio ('+K('G','◎')+').':'.')}); }
   if(platforms.some(p=>p.gira) && !seen.gira){ seen.gira=1; cards.push({icon:'📌', tag:'NOVIDADE', big:'PLATAFORMA COM PREGO', sub:'Ela gira em volta do prego do meio. Pise no MEIO e ela fica parada. Pisou na beirada, ela gira quase de pé (90°), te derruba e depois volta sozinha.'}); }
   if(platforms.some(p=>p.fragil) && !seen.fragil){ seen.fragil=1; cards.push({icon:'🪵', tag:'NOVIDADE', big:'PONTE QUE QUEBRA', sub:'As plataformas rachadas aguentam meio segundo com você em cima. Depois caem e só voltam 4 s depois. Não pare nelas!'}); }
   if(platforms.some(p=>p.mv&&(p.mv.mode==='onda'||p.mv.mode==='grupoX'||p.mv.mode==='respira')) && !seen.ondas){ seen.ondas=1; cards.push({icon:'🌊', tag:'NOVIDADE', big:'PLATAFORMAS EM GRUPO', sub:'Um grupo de plataformas se mexe junto: em onda, balançando ou abrindo e fechando. Pule no ritmo.'}); }
@@ -2075,6 +2241,7 @@ function setKey(e,down){ const k=(e.key||'').toLowerCase();
   else if(k==='e'&&down){ e.preventDefault(); usePower(); }
   else if(k==='q'&&down){ e.preventDefault(); cyclePower(); }
   else if(k==='f'&&down){ e.preventDefault(); fireDivine(); }
+  else if(k==='g'&&down){ e.preventDefault(); usarDominio(); }
   else if(k==='r'&&down){ if(state==='play') startLevel(level); }
   else if((k==='p'||k==='escape')&&down){ if(state==='play'){ e.preventDefault(); pauseGame(); } } }
 window.addEventListener('keydown',e=>setKey(e,true));
@@ -2102,6 +2269,7 @@ bindTouch('bCharge', onCharge, offCharge);
 bindTouch('bPow', ()=>usePower(), ()=>{});
 bindTouch('bCyc', ()=>cyclePower(), ()=>{});
 bindTouch('bDiv', ()=>fireDivine(), ()=>{});
+bindTouch('bDom', ()=>usarDominio(), ()=>{});
 bindTouch('bDash', ()=>dash(), ()=>{});
 bindTouch('bPause', ()=>{ if(state==='play') pauseGame(); else if(state==='pause') resumeGame(); }, ()=>{});
 
@@ -2164,9 +2332,20 @@ if(globalThis.__DEV){
       if(nome==='perso'){ startLevel(9); pl=player; let k=0; for(const n of npcs.slice(0,6)){ n.x=pl.x+90+k*90; n.y=groundY-n.h; makeHappy(n,'cena'); n.perso=['carente','timido','ciumento','impulsivo','calculista','romantico'][k]; n.grace=2; k++; } foca(pl.x+300,pl.y); return this.info(); }
       if(nome==='tristonho'){ for(let L=14;L<60;L++){ startLevel(L); pl=player; const tr=monsters.find(m=>m.kind==='tristonho'); if(tr){ tr.ringT=0.4; pl.x=clamp(tr.x-260,0,WORLD_W-pl.w); pl.y=tr.y+tr.h-pl.h; pl.invuln=3; foca(tr.x,tr.y); return this.info(); } } }
       return null; },
+    dominio(tipo,L){ startLevel(L||40); let pl=player;
+      if(tipo==='amor'){ pl.stam=MAX_STAM; usarDominio(); for(let i=0;i<20;i++) update(STEP); return Object.assign(this.info(),{dominio:dominio&&dominio.tipo}); }
+      const kind={coracaoNegro:'boss',tristeza:'tristonho',labirinto:'arquiteto',sombras:'sombrio',gelo:'gelador',furia:'chaser'}[tipo]||'chaser';
+      let mo=monsters.find(m=>m.kind===kind); if(!mo){ mo=mkMonster(0,0,kind); monsters.push(mo); }
+      mo.elite=kind!=='boss'; mo.x=clamp(pl.x+420,0,WORLD_W-mo.w); mo.y=groundY-mo.h; mo.onGround=true;
+      pl.invuln=99; abrirDominio('monstro',mo); for(let i=0;i<30;i++){ pl.invuln=99; update(STEP); }
+      camX=clamp(pl.x+200-W/2,0,Math.max(0,WORLD_W-W)); camY=clamp(pl.y-H*0.55,0,Math.max(0,WORLD_H-H)); camPX=camX; camPY=camY; pl.px=pl.x; pl.py=pl.y;
+      return Object.assign(this.info(),{dominio:dominio&&dominio.tipo}); },
+    poder(id,L){ startLevel(L||30); const pl=player; if(pl.powers.indexOf(id)<0) pl.powers.push(id); pl.equip=pl.powers.indexOf(id); pl.stam=MAX_STAM; pl.invuln=99; usePower();
+      for(let i=0;i<12;i++){ pl.invuln=99; update(STEP); } return this.info(); },
     especial(id,nv,L){ FORCA={tipo:'especial',id,vez:nv||1}; startLevel(L||Math.max(ESPECIAIS[id].min,13)); FORCA=null; return this.info(); },
     bonus(v,L){ FORCA={tipo:'bonus',var:v,idx:4}; startLevel(L||20); FORCA=null; return this.info(); },
     plano(a,b){ const r=[]; for(let n=a;n<=b;n++){ const p=planoFases(n); r.push(n+':'+(p.tipo==='especial'?'E/'+p.id+p.vez:(p.tipo==='bonus'?'B/'+p.var:'n'))); } return r.join(' '); },
+    parede(){ return dominio?{x0:dominio.x0,x1:dominio.x1,prende:dominio.prende}:null; },
     jogador(){ return {x:player.x,y:player.y,vx:player.vx,vy:player.vy,onGround:player.onGround,jumps:player.jumps,stam:player.stam,shots:loveShots.length}; },
     reachOK(){ const ps=platforms, r=computeReachable(); const top=groundY-(groundY-110)*0.75;
       let tt=0,tr=0; ps.forEach((p,i)=>{ if(p.band===99)return; if(p.y<=top){tt++; if(r[i])tr++;} });
@@ -2177,7 +2356,7 @@ if(globalThis.__DEV){
     info(){ return { level, label:(cfg&&cfg.label)||'', type:cfg&&cfg.type, plats:platforms.length,
       npcs:npcs.length, monsters:monsters.length, W:WORLD_W, H:WORLD_H, seed:runSeed,
       tags:(M&&M.tags)||[], style:M&&M.style, target:cfg&&cfg.target, collectIndex:cfg&&cfg.collectIndex,
-      monstersKinds:monsters.map(m=>m.kind), quality:Q.tier, portas:portas.length, gira:platforms.filter(p=>p.gira).length, fragil:platforms.filter(p=>p.fragil).length, grupo:platforms.filter(p=>p.mv&&p.mv.A).length, ouro:!!ouro, ia:IA.nivel(), objetivo:cfg&&cfg.objetivo, especial:cfg&&cfg.especial&&cfg.especial.id, bonusVar:cfg&&cfg.bonusVar }; }
+      monstersKinds:monsters.map(m=>m.kind), quality:Q.tier, portas:portas.length, gira:platforms.filter(p=>p.gira).length, fragil:platforms.filter(p=>p.fragil).length, grupo:platforms.filter(p=>p.mv&&p.mv.A).length, ouro:!!ouro, ia:IA.nivel(), objetivo:cfg&&cfg.objetivo, especial:cfg&&cfg.especial&&cfg.especial.id, bonusVar:cfg&&cfg.bonusVar, elites:monsters.filter(m=>m.elite).length, dominioAtivo:dominio?dominio.tipo:null }; }
   };
 }
 

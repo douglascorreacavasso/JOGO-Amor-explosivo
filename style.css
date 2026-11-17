@@ -146,6 +146,8 @@ b.blue { color:#7fb0ff; } b.pink { color:var(--rosa2); }
 #bDash{ right:96px; bottom:76px; width:44px; height:44px; font-size:22px; font-weight:bold; background:rgba(255,179,209,.16); border-color:rgba(255,179,209,.5); opacity:.85; }
 #bDiv{ left:50%; transform:translateX(-50%); bottom:150px; width:96px; height:96px; font-size:40px;
        background:rgba(255,209,102,.32); border-color:rgba(255,243,176,.9); animation:divpulse 1s infinite alternate; }
+#bDom{ left:calc(50% + 64px); bottom:160px; width:66px; height:66px; font-size:32px; color:#fff;
+       background:rgba(255,143,171,.26); border-color:rgba(255,214,224,.9); }
 @keyframes divpulse{ from{ box-shadow:0 0 18px rgba(255,209,102,.5);} to{ box-shadow:0 0 34px rgba(255,209,102,.95);} }
 
 @media (max-width:640px), (max-height:520px){

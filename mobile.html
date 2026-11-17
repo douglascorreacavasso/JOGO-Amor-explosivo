@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <title>Amor Explosivo — Celular</title>
-<link rel="stylesheet" href="style.css?v=30">
-<link rel="stylesheet" href="style-mobile.css?v=30">
+<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style-mobile.css?v=31">
 </head>
 <body data-platform="mobile">
 <div id="wrap">
@@ -24,11 +24,53 @@
     <div class="tbtn" id="bCyc">⇄</div>
     <div class="tbtn" id="bDash" style="display:none" aria-label="Dash">»</div>
     <div class="tbtn" id="bDiv" style="display:none">✨</div>
+    <div class="tbtn" id="bDom" style="display:none" aria-label="Domínio">◎</div>
   </div>
   <div id="overlay"></div>
 </div>
 <div id="rotate"><div class="rot-ico">📱</div><p>Gire o celular para jogar 🔄</p></div>
-<script src="grafo_experiencia.js?v=30"></script>
-<script src="game.js?v=30"></script>
+<!-- PRÉ-CARREGAMENTO (regra do doug p/ GitHub): bolinha girando + % enquanto o jogo baixa; aparelho fraco começa no modo leve -->
+<style>
+#boot{position:fixed;inset:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(circle at 50% 40%,#2a1250,#140d33 60%,#0b0720);color:#ffd6e0;font-family:"Trebuchet MS",system-ui,sans-serif;transition:opacity .3s ease-out}
+#boot .bb-anel{position:relative;width:76px;height:76px}
+#boot .bb-bola{position:absolute;inset:0;border-radius:50%;border:4px solid rgba(255,143,171,.18);border-top-color:#ff8fab;border-right-color:#ff2e63;animation:bb-gira .9s linear infinite;will-change:transform}
+#boot .bb-cor{position:absolute;left:50%;top:50%;font-size:26px;transform:translate(-50%,-50%);animation:bb-bate 1s ease-in-out infinite}
+#boot .bb-tit{font-size:20px;font-weight:700;letter-spacing:.5px;color:#fff}
+#boot .bb-sub{font-size:12px;color:#c9a7ff;max-width:86vw;text-align:center}
+#boot .bb-trilha{width:min(240px,70vw);height:6px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
+#boot .bb-barra{height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,#ff8fab,#ff2e63);transition:width .15s ease-out}
+#boot .bb-pct{font:700 13px monospace;color:#ff8fab}
+@keyframes bb-gira{to{transform:rotate(360deg)}}
+@keyframes bb-bate{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+@media (prefers-reduced-motion: reduce){#boot .bb-bola{animation-duration:2.4s}#boot .bb-cor{animation:none}}
+</style>
+<div id="boot" role="status" aria-live="polite">
+  <div class="bb-anel"><div class="bb-bola"></div><div class="bb-cor">💗</div></div>
+  <div class="bb-tit">Amor Explosivo</div>
+  <div class="bb-sub" id="bootSub">carregando o amor…</div>
+  <div class="bb-trilha"><div class="bb-barra" id="bootBarra"></div></div>
+  <div class="bb-pct" id="bootPct">0%</div>
+</div>
+<script>
+(function(){
+  var V='31', ARQS=['grafo_experiencia.js','game.js'], PESO={'grafo_experiencia.js':0.08,'game.js':0.92}, prog={}, txt={}, falta=ARQS.length;
+  try{ var mem=navigator.deviceMemory||8, nuc=navigator.hardwareConcurrency||8; window.__FRACO=(mem<=2||nuc<=2); }catch(e){ window.__FRACO=false; }
+  var barra=document.getElementById('bootBarra'), pct=document.getElementById('bootPct'), sub=document.getElementById('bootSub');
+  if(window.__FRACO&&sub) sub.textContent='carregando o amor… (aparelho mais simples: modo leve)';
+  function mostra(p){ p=Math.max(0,Math.min(100,Math.round(p))); barra.style.width=p+'%'; pct.textContent=p+'%'; }
+  function soma(){ var s=0; for(var k in PESO) s+=(prog[k]||0)*PESO[k]; mostra(s*96); }
+  function some(){ var b=document.getElementById('boot'); if(!b) return; mostra(100); b.style.opacity='0'; setTimeout(function(){ if(b.parentNode) b.parentNode.removeChild(b); },350); }
+  function erro(a){ if(sub){ sub.style.color='#ff8888'; sub.textContent='⚠ não consegui carregar '+a+' — recarregue a página'; } }
+  function injeta(i){ if(i>=ARQS.length){ some(); return; } var a=ARQS[i], s=document.createElement('script');
+    if(txt[a]!=null){ s.text=txt[a]+'\n//# sourceURL='+a; document.body.appendChild(s); injeta(i+1); }
+    else { s.src=a+'?v='+V; s.onload=function(){ injeta(i+1); }; s.onerror=function(){ erro(a); }; document.body.appendChild(s); } }
+  function pronto(a){ prog[a]=1; soma(); if(--falta===0) injeta(0); }
+  ARQS.forEach(function(a){ var x; try{ x=new XMLHttpRequest(); x.open('GET',a+'?v='+V,true); }catch(e){ pronto(a); return; }
+    x.onprogress=function(e){ prog[a]=e.lengthComputable&&e.total?e.loaded/e.total:Math.min(0.9,(prog[a]||0)+0.1); soma(); };
+    x.onload=function(){ if((x.status===200||x.status===0)&&x.responseText) txt[a]=x.responseText; pronto(a); };
+    x.onerror=function(){ pronto(a); };   /* abriu direto do arquivo (file://): carrega do jeito normal */
+    try{ x.send(); }catch(e){ pronto(a); } });
+})();
+</script>
 </body>
 </html>
