@@ -21,26 +21,52 @@
    - poderes desbloqueados por nível COM aviso; diretor Backrooms em 4 camadas de estranheza.
    ============================================================================ */
 const MOBILE = !!(typeof document!=='undefined' && document.body && document.body.dataset && document.body.dataset.platform==='mobile');
-const SAVE_KEY='amorExplosivo_save_v2';
-function saveProgress(lvOverride){ try{ if(typeof localStorage==='undefined')return;
-  localStorage.setItem(SAVE_KEY, JSON.stringify({v:27,mode,level:lvOverride||level,lives,deepest,deaths,seed:runSeed,seen,ts:Date.now()})); }catch(e){} }
+const SAVE_KEY='amorExplosivo_save_v2';   // ANTIGO: uma vaga só para os dois modos. Foi ela que apagou o Infinito em 19/11
+// v34 (19/11/2026, Claude a pedido do Douglas): cada modo tem a SUA vaga. Começar um modo nunca mexe no outro.
+// Apagar progresso só depois de confirmar duas vezes; antes de apagar ou recomeçar, o save vai para a vaga "_antes" (dá para voltar).
+// O recorde do Infinito fica guardado à parte e nunca se apaga sozinho.
+const SAVE_KEYS={adventure:'amorExplosivo_save_aventura_v3', infinite:'amorExplosivo_save_infinito_v3'};
+const RECORDE_INF_KEY='amorExplosivo_recorde_infinito', MIGROU_KEY='amorExplosivo_migrou_v3';
+function _ls(){ try{ return typeof localStorage==='undefined'?null:localStorage; }catch(e){ return null; } }
+function _modo(m){ return m==='infinite'?'infinite':'adventure'; }
+function saveProgress(lvOverride){ try{ const L=_ls(); if(!L)return; const m=_modo(mode), lv=lvOverride||level;
+  L.setItem(SAVE_KEYS[m], JSON.stringify({v:34,mode:m,level:lv,lives,deepest,deaths,seed:runSeed,seen,ts:Date.now()}));
+  if(m==='infinite'){ const r=saveInt(L.getItem(RECORDE_INF_KEY)), top=Math.max(lv|0,deepest|0); if(!(r>=top)) L.setItem(RECORDE_INF_KEY,String(top)); }
+  }catch(e){} }
 // lê o save e devolve SEMPRE um objeto limpo (ou null). Aceita save da v26 (sem "v"/"seen").
 // Achado pelo robô _save_test.js (16/11): antes um save estranho mostrava "nível 2.7"/"nível true" no menu e abria outro
 // nível, 1e12 abria o nível 1, recorde gigante punha a fase na dificuldade máxima e mortes podiam ficar negativas.
 function saveInt(x){ if(typeof x==='number') return isFinite(x)?Math.floor(x):NaN;
   if(typeof x==='string' && /^\s*\d{1,12}\s*$/.test(x)) return parseInt(x,10); return NaN; }
-function loadProgress(){ try{ if(typeof localStorage==='undefined')return null;
-  const s=localStorage.getItem(SAVE_KEY); const o=s?JSON.parse(s):null;
+function limpaSave(o){
   if(!o || typeof o!=='object' || Array.isArray(o)) return null;
   const lv=saveInt(o.level); if(!(lv>=1)) return null;
-  const level=Math.min(lv,LEVEL_CAP), li=saveInt(o.lives), dp=saveInt(o.deepest), dt=saveInt(o.deaths), sd=saveInt(o.seed);
+  const level=Math.min(lv,LEVEL_CAP), li=saveInt(o.lives), dp=saveInt(o.deepest), dt=saveInt(o.deaths), sd=saveInt(o.seed), ts=saveInt(o.ts);
   const seen={}; if(o.seen && typeof o.seen==='object' && !Array.isArray(o.seen))
     for(const k of Object.keys(o.seen)){ if(k!=='__proto__' && k.length<40 && o.seen[k]) seen[k]=1; }
   return { v:o.v, mode:o.mode==='infinite'?'infinite':'adventure', level,
     lives:(li>=1&&li<=3)?li:3, deepest:clamp(dp>=1?dp:level,level,LEVEL_CAP), deaths:dt>=0?Math.min(dt,1e9):0,
-    seed:(o.seed!=null && sd>=0)?(sd>>>0):(typeof o.seed==='number'&&isFinite(o.seed)?(o.seed>>>0):null), seen };
-  }catch(e){return null;} }
-function clearProgress(){ try{ if(typeof localStorage!=='undefined') localStorage.removeItem(SAVE_KEY); }catch(e){} }
+    seed:(o.seed!=null && sd>=0)?(sd>>>0):(typeof o.seed==='number'&&isFinite(o.seed)?(o.seed>>>0):null), seen, ts:ts>=0?ts:0 }; }
+function lerSave(chave){ try{ const L=_ls(); if(!L) return null; const s=L.getItem(chave); return s?limpaSave(JSON.parse(s)):null; }catch(e){ return null; } }
+function migraSaveAntigo(){ try{ const L=_ls(); if(!L || L.getItem(MIGROU_KEY)) return; const raw=L.getItem(SAVE_KEY), velho=raw?lerSave(SAVE_KEY):null;
+  if(velho && !L.getItem(SAVE_KEYS[velho.mode])) L.setItem(SAVE_KEYS[velho.mode], raw);
+  L.setItem(MIGROU_KEY,'1'); }catch(e){} }
+// loadProgress('infinite') ou loadProgress('adventure'); sem modo devolve o mais recente dos dois.
+function loadProgress(m){ migraSaveAntigo();
+  if(!m){ const a=loadProgress('adventure'), b=loadProgress('infinite'); if(a&&b) return (b.ts||0)>(a.ts||0)?b:a; return a||b; }
+  m=_modo(m); let sv=lerSave(SAVE_KEYS[m]);
+  if(!sv){ const L=_ls(); let feita=false; try{ feita=!!(L&&L.getItem(MIGROU_KEY)); }catch(e){}
+    if(!feita){ const velho=lerSave(SAVE_KEY); if(velho && velho.mode===m) sv=velho; } }   // navegador que não deixa gravar: lê o antigo direto
+  return sv; }
+function guardaAntes(m){ try{ const L=_ls(); if(!L) return; const raw=L.getItem(SAVE_KEYS[m]); if(raw && lerSave(SAVE_KEYS[m])) L.setItem(SAVE_KEYS[m]+'_antes', raw); }catch(e){} }
+function clearProgress(m){ m=_modo(m||mode); guardaAntes(m);
+  try{ const L=_ls(); if(!L) return; L.removeItem(SAVE_KEYS[m]); const velho=lerSave(SAVE_KEY); if(velho && velho.mode===m) L.removeItem(SAVE_KEY); }catch(e){} }
+// nível que dá para recuperar: o save de antes de recomeçar/apagar, ou (Infinito) o recorde e o histórico do grafo de experiência
+function recuperavel(m, sv){ let melhor=null;
+  const b=lerSave(SAVE_KEYS[m]+'_antes'); if(b && (!sv || b.level>sv.level)) melhor={level:b.level, de:'antes', sv:b};
+  if(m==='infinite'){ let r=0; try{ const L=_ls(); r=saveInt(L&&L.getItem(RECORDE_INF_KEY)); }catch(e){} r=Math.max(r>0?r:0, (G('maiorFase','infinite')|0));
+    r=Math.min(r,LEVEL_CAP); if(r>1 && (!sv || r>sv.level) && (!melhor || r>melhor.level)) melhor={level:r, de:'historico'}; }
+  return melhor; }
 const cv=document.getElementById('game'), ctx=cv.getContext('2d',{alpha:false});   // tela opaca: o navegador compõe mais rápido
 let W=0,H=0,DPR=1,SCRW=0,SCRH=0,ZOOM=1,RS=1;
 
@@ -2163,25 +2189,49 @@ function showTutorial(go){
     '</div>'+BTN('tgo','COMEÇAR','',true),'tut-screen');
   on('tgo',()=>{ tutorialShown=true; go(); });
 }
-function newGame(m){ mode=m; lives=3; deaths=0; deepest=1; briefedLevels={}; seen={}; runSeed=(Date.now()^(Math.random()*1e9))>>>0; startLevel(1); }
+function newGame(m){ guardaAntes(_modo(m)); mode=m; lives=3; deaths=0; deepest=1; briefedLevels={}; seen={}; runSeed=(Date.now()^(Math.random()*1e9))>>>0; startLevel(1); }
+function continuarSave(sv){ mode=sv.mode; lives=sv.lives; deepest=sv.deepest; deaths=sv.deaths;   // sv já vem limpo de loadProgress()
+  seen=sv.seen; briefedLevels={}; if(sv.seed!=null)runSeed=sv.seed; startLevel(sv.level); }
+function recuperarNivel(m, rec){ if(rec.de==='antes' && rec.sv){ continuarSave(rec.sv); return; }
+  continuarSave({mode:m, level:rec.level, lives:3, deepest:rec.level, deaths:0, seed:null, seen:{}}); }
+const NOME_MODO={adventure:'Aventura', infinite:'Infinito'};
+function comecarDoZero(m){ const go=()=>newGame(m); tutorialShown?go():showTutorial(go); }
+// tocar num modo que já tem progresso NÃO recomeça: pergunta primeiro
+function escolherModo(m){ const sv=loadProgress(m);
+  if(!sv){ comecarDoZero(m); return; }
+  showScreen('<h1>'+NOME_MODO[m]+'</h1><p class="tagline">Você parou no <b>nível '+sv.level+'</b>.</p>'+
+    '<div class="contWrap">'+BTN('mcont','▶ CONTINUAR · nível '+sv.level,'cont',true)+'</div>'+
+    BTN('mvolta','VOLTAR AO MENU','ghost')+
+    '<p><a class="clr" id="mzero" href="#">começar do zero (apaga o nível '+sv.level+')</a></p>','menu-screen');
+  on('mcont',()=>continuarSave(sv)); on('mvolta',showMenu);
+  const z=document.getElementById('mzero'); if(z) z.onclick=(e)=>{ if(e&&e.preventDefault) e.preventDefault(); confirmarZerar(m,sv); }; }
+function confirmarZerar(m, sv){
+  showScreen('<div class="broken" aria-hidden="true">⚠️</div><h1>Apagar o progresso?</h1>'+
+    '<p>O '+NOME_MODO[m]+' volta ao nível 1 e você perde o <b>nível '+sv.level+'</b>.</p>'+
+    '<div class="contWrap">'+BTN('znao','NÃO, CONTINUAR NO '+sv.level,'cont',true)+'</div>'+
+    BTN('zsim','Sim, apagar e começar do zero','ghost'),'menu-screen');
+  on('znao',()=>continuarSave(sv)); on('zsim',()=>{ clearProgress(m); comecarDoZero(m); }); }
 function showMenu(){ state='menu';
-  const sv=loadProgress();
-  const cont = sv ? BTN('cont','CONTINUAR · nível '+sv.level+' <small>('+(sv.mode==='infinite'?'Infinito':'Aventura')+')</small>','cont',true) : '';
+  const sa=loadProgress('adventure'), si=loadProgress('infinite');
+  const lista=[['infinite',si],['adventure',sa]].filter(x=>x[1]).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
+  let conts='';
+  lista.forEach(([m,sv],i)=>{ conts+=BTN(i===0?'cont':'cont2','CONTINUAR · nível '+sv.level+' <small>('+NOME_MODO[m]+')</small>','cont'+(i?' cont2':''),i===0); });
+  const recs=[]; for(const m of ['infinite','adventure']){ const r=recuperavel(m, m==='infinite'?si:sa); if(r) recs.push([m,r]); }
+  const recHtml=recs.map(([m,r],i)=>BTN('rec'+i,'↺ VOLTAR AO NÍVEL '+r.level+' <small>('+NOME_MODO[m]+(r.de==='antes'?' · antes de recomeçar':' · achado no seu histórico')+')</small>','rec')).join('');
   showScreen(LOGO+'<h1 class="title">Amor <span>Explosivo</span></h1>'+
     '<p class="tagline">Apaixone o mundo inteiro… antes que o mundo derreta.</p>'+
-    (cont?'<div class="contWrap">'+cont+'</div>':'')+
+    (conts?'<div class="contWrap">'+conts+'</div>':'')+(recHtml?'<div class="recWrap">'+recHtml+'</div>':'')+
     '<div class="modes">'+
-      '<button class="mode" id="adv"'+(cont?'':' data-primary="1"')+'><div class="mIcon">❤❤❤</div><div class="mName">Aventura</div><div class="mTxt">3 vidas · cada vida tem corações de HP. Acabou tudo, volta ao nível 1.</div></button>'+
-      '<button class="mode alt" id="inf"><div class="mIcon">∞</div><div class="mName">Infinito</div><div class="mTxt">Sem vidas: qualquer toque reinicia a fase na hora. Bata seu recorde.</div></button>'+
+      '<button class="mode" id="adv"'+(conts?'':' data-primary="1"')+'><div class="mIcon">❤❤❤</div><div class="mName">Aventura</div><div class="mTxt">'+(sa?'Seu progresso: nível '+sa.level+'. ':'')+'3 vidas · cada vida tem corações de HP. Acabou tudo, volta ao nível 1.</div></button>'+
+      '<button class="mode alt" id="inf"><div class="mIcon">∞</div><div class="mName">Infinito</div><div class="mTxt">'+(si?'Seu progresso: nível '+si.level+'. ':'')+'Sem vidas: qualquer toque reinicia a fase na hora. Bata seu recorde.</div></button>'+
     '</div>'+
     '<p class="hint">As 5 primeiras fases são feitas à mão. Da 6 em diante o mundo é gerado e fica cada vez mais estranho.</p>'+
-    (cont?'<p><a class="clr" id="clr" href="#">apagar progresso salvo</a></p>':'')+'<p><a class="clr" id="opcEfx" href="#">'+(OPC.reduz?'efeitos reduzidos (tocar pra voltar ao normal)':'reduzir flashes e tremores')+'</a></p>','menu-screen');
+    '<p><a class="clr" id="opcEfx" href="#">'+(OPC.reduz?'efeitos reduzidos (tocar pra voltar ao normal)':'reduzir flashes e tremores')+'</a></p>','menu-screen');
   { const ef=document.getElementById('opcEfx'); if(ef) ef.onclick=(e)=>{ if(e&&e.preventDefault) e.preventDefault(); OPC.reduz=!OPC.reduz; salvaOPC(); showMenu(); }; }
-  if(sv){ on('cont',()=>{ mode=sv.mode; lives=sv.lives; deepest=sv.deepest; deaths=sv.deaths;   // sv já vem limpo de loadProgress()
-    seen=sv.seen; briefedLevels={}; if(sv.seed!=null)runSeed=sv.seed; startLevel(sv.level); });
-    const cl=document.getElementById('clr'); if(cl) cl.onclick=(e)=>{ if(e&&e.preventDefault) e.preventDefault(); clearProgress(); showMenu(); }; }
-  on('adv',()=>{ const go=()=>newGame('adventure'); tutorialShown?go():showTutorial(go); });
-  on('inf',()=>{ const go=()=>newGame('infinite'); tutorialShown?go():showTutorial(go); });
+  lista.forEach(([m,sv],i)=>on(i===0?'cont':'cont2',()=>continuarSave(sv)));
+  recs.forEach(([m,r],i)=>on('rec'+i,()=>recuperarNivel(m,r)));
+  on('adv',()=>escolherModo('adventure'));
+  on('inf',()=>escolherModo('infinite'));
 }
 function pauseGame(){ if(state!=='play') return; state='pause'; keys.left=keys.right=keys.jump=keys.charge=false; if(player){ player.charging=false; player.charge=0; } joy=null; jumpTouches.clear(); blastTouches.clear();
   showScreen('<div class="pauseIcon">⏸</div><h1>Pausa</h1><p class="hint">'+cfg.label+'</p>'+
@@ -2199,7 +2249,7 @@ function levelClear(){ if(state!=='play') return; state='end';
   G('fimFase','vitoria',{hp_restante:player.hp,hp_max:player.maxHp});
   beep(660,0.2,'sine',0.07); later(140,()=>beep(990,0.3,'sine',0.06));
   deepest=Math.max(deepest,level+1);
-  if(level>=LEVEL_CAP){ clearProgress(); showScreen(LOGO+'<h1>1000 NÍVEIS!</h1><p>Você atravessou toda a distorção e apaixonou o universo inteiro. Lenda! 💖</p>'+BTN('b','RECOMEÇAR','',true),'win-screen');
+  if(level>=LEVEL_CAP){ clearProgress(mode); showScreen(LOGO+'<h1>1000 NÍVEIS!</h1><p>Você atravessou toda a distorção e apaixonou o universo inteiro. Lenda! 💖</p>'+BTN('b','RECOMEÇAR','',true),'win-screen');
     on('b',()=>{ lives=3; startLevel(1); }); return; }
   saveProgress(level+1);
   const nxt=level+1, nu=UNLOCKS.find(u=>u.lv===nxt);
@@ -2218,7 +2268,7 @@ function die(){ if(state!=='play') return; state='end';
   if(mode==='adventure'){ lives--;
     if(lives>0){ saveProgress(); showScreen('<div class="broken" aria-hidden="true">💔</div><h1>Seu coração partiu</h1><p>Vidas restantes: '+'❤'.repeat(lives)+'</p>'+dica+
         BTN('b','TENTAR DE NOVO · nível '+level,'',true)+BTN('bm','MENU','ghost'),'lose-screen'); on('b',()=>startLevel(level)); on('bm',()=>showMenu()); }
-    else { clearProgress(); showScreen('<div class="broken" aria-hidden="true">💔</div><h1>Fim da jornada</h1><p>Acabaram as 3 vidas. Você chegou ao nível <b>'+level+'</b>.</p>'+dica+
+    else { clearProgress(mode); showScreen('<div class="broken" aria-hidden="true">💔</div><h1>Fim da jornada</h1><p>Acabaram as 3 vidas. Você chegou ao nível <b>'+level+'</b>.</p>'+dica+
         BTN('b','RECOMEÇAR DO NÍVEL 1','',true)+BTN('bm','MENU','ghost'),'lose-screen'); on('b',()=>{ lives=3; startLevel(1); }); on('bm',()=>showMenu()); } }
   else { startLevel(level); } }
 

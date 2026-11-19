@@ -56,6 +56,12 @@ const API={
     episodiosPend.push({quando:episodio.quando, entrada:episodio.entrada, nos:[...episodio.usados, 'evento:'+resultado], resultado, nota, eventos:episodio.eventos, origem});
     if(episodiosPend.length>MAX_EPIS) episodiosPend.splice(0, episodiosPend.length-MAX_EPIS);
     episodio=null; enfraquecer(); salvar(true); },
+  // maior fase jogada num modo, pelos episódios guardados (usado pelo menu para recuperar o Infinito; 19/11)
+  maiorFase(modo){ const alvo='modo:'+modo; let m=0;
+    const olha=(ids)=>{ if(!ids || ids.indexOf(alvo)<0) return; for(const id of ids){ if(typeof id==='string' && id.slice(0,5)==='fase:'){ const n=parseInt(id.slice(5),10); if(n>m) m=n; } } };
+    for(const ep of episodiosPend) olha(Array.isArray(ep.nos)?ep.nos:null);
+    if(episodio) olha([...episodio.usados]);
+    return m; },
   maiorPerigo(){ const dano=no('evento','dano'); let melhor=null;
     for(const e of arestas.values()){ if(e.b!==dano.id || e.rel!=='causa') continue; if(!melhor||e.n>melhor.n) melhor=e; }
     return melhor ? {fonte:nos.get(melhor.a).rotulo, vezes:melhor.n, peso:+melhor.peso.toFixed(3)} : null; },

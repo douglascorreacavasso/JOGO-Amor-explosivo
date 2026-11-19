@@ -159,3 +159,17 @@ b.blue { color:#7fb0ff; } b.pink { color:var(--rosa2); }
 @media (prefers-reduced-motion: reduce){
   #overlay .fh, .logo .lheart, .logo .burst, .btn .bh, .briefIcon, .clearHearts, .broken, #overlay h1.title span { animation:none !important; }
 }
+
+/* v34 (19/11): CONTINUAR enorme; recomeçar fica pequeno e pede confirmação */
+.contWrap { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.btn.cont { font-size:26px; padding:22px 46px 22px 34px; width:min(560px,92%); justify-content:center; letter-spacing:2px;
+  background:linear-gradient(180deg,#ffd36e 0%,#ff7a59 45%,#ff2e63 100%); box-shadow:0 8px 0 #8a0030, 0 14px 34px rgba(255,90,80,.6), inset 0 2px 0 rgba(255,255,255,.55);
+  animation:contPulsa 1.6s ease-in-out infinite; }
+.btn.cont small { font-size:.62em; }
+.btn.cont .bh { width:28px; height:25px; }
+.btn.cont.cont2 { font-size:19px; padding:15px 32px 15px 24px; width:min(460px,86%); animation:none;
+  background:linear-gradient(180deg,#ff6f99 0%,#ff2e63 55%,#d4004a 100%); }
+.recWrap { display:flex; flex-direction:column; align-items:center; margin:0 0 6px; }
+.btn.rec { font-size:15px; background:linear-gradient(180deg,#5fe3c0,#1fae8c 60%,#0c7b62); box-shadow:0 5px 0 #06493a, 0 8px 20px rgba(20,180,140,.45), inset 0 2px 0 rgba(255,255,255,.4); }
+@keyframes contPulsa { 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.035);} }
+@media (prefers-reduced-motion: reduce){ .btn.cont { animation:none !important; } }

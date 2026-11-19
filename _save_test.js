@@ -129,7 +129,7 @@ function runCase(name, raw, exp, smode, briefing){
       if(smode!=='setThrows'){
         STORAGE_MODE='ok'; AE.saveProgress(); const back=AE.loadProgress();
         if(!back) problems.push('save regravado não foi lido de volta');
-        else { if(back.v!==27) problems.push('save regravado sem v:27');
+        else { if(!(back.v>=27)) problems.push('save regravado sem versão');
           if(!(Number.isInteger(back.level)&&back.level>=1&&back.level<=AE.LEVEL_CAP)) problems.push('save regravado com level '+back.level); }
       }
     }
