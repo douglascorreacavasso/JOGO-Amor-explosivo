@@ -18,8 +18,8 @@ html, body { position:fixed; top:0; left:0; width:100vw; height:100vh; height:10
 .briefSub { font-size:clamp(14px,4.2vw,18px); line-height:1.28; margin-bottom:8px; }
 .briefIcon { font-size:44px; }
 .btn { font-size:15px; padding:11px 22px 11px 16px; margin:5px; }
-/* botão de explosão no canto, fora da zona do joystick */
-#bCharge { right:18px; bottom:14px; }
+/* v33: explosão = toque em qualquer lugar da tela; o 💥 do canto saiu do celular (confundia com o pulo) */
+#bCharge { display:none !important; }
 #bPause { top:6px; width:36px; height:36px; }
 /* aviso: gire o celular — controlado por JS (classe .portrait no body) */
 #rotate { display:none; }

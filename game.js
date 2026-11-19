@@ -86,9 +86,9 @@ function areaForLevel(n){
 }
 // ===== QUANDO CADA PODER APARECE (o jogo avisa na 1ª vez) =====
 const UNLOCKS=[
-  {lv:2,  id:'double',  icon:'🦘', name:'PULO DUPLO',        pc:'aperte ↑ de novo no ar', mob:'toque de novo na metade direita, ainda no ar', what:'Pule outra vez no meio do pulo.'},
+  {lv:2,  id:'double',  icon:'🦘', name:'PULO DUPLO',        pc:'aperte ↑ de novo no ar', mob:'deslize pra cima de novo, ainda no ar', what:'Pule outra vez no meio do pulo.'},
   {lv:3,  id:'wall',    icon:'🧱', name:'BARREIRA DE AMOR',  pc:'aperte ↓', mob:'puxe o dedo da esquerda pra baixo', what:'Uma parede de corações por 60 s: os apaixonados não passam por ela. Gasta 50 de energia.'},
-  {lv:5,  id:'triple',  icon:'🪽', name:'PULO TRIPLO',       pc:'↑ três vezes', mob:'três toques na metade direita', what:'Agora são 3 pulos seguidos.'},
+  {lv:5,  id:'triple',  icon:'🪽', name:'PULO TRIPLO',       pc:'↑ três vezes', mob:'deslize pra cima três vezes', what:'Agora são 3 pulos seguidos.'},
   {lv:8,  id:'dash',    icon:'💨', name:'DASH DE AMOR',      pc:'aperte SHIFT', mob:'botão »', what:'Arrancada rápida pra frente, atravessando os apaixonados sem levar dano. 15 de energia.'},
   {lv:7,  id:'shot',    icon:'💘', name:'DISPARO DE AMOR',   pc:'aperte E', mob:'botão ★', what:'Lança um coração pra frente: apaixona os tristes e fere monstros. 24 de energia.'},
   {lv:10, id:'divine',  icon:'✨', name:'AMOR DIVINO',       pc:'aperte F com a energia CHEIA', mob:'botão ✨ (aparece com a energia cheia)', what:'Apaixona TODOS e destrói TODOS os monstros da fase. Gasta a energia inteira.'},
@@ -1913,10 +1913,10 @@ function draw(alpha){
   if(MOBILE){ for(const j of jumpTouches.values()){ ctx.globalAlpha=0.35; ctx.strokeStyle='#ff8fab'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(j.x,j.y,28,0,6.28); ctx.stroke();
       ctx.fillStyle='#ffd6e0'; ctx.beginPath(); ctx.moveTo(j.x,j.y-12); ctx.lineTo(j.x-9,j.y+4); ctx.lineTo(j.x+9,j.y+4); ctx.closePath(); ctx.fill(); ctx.globalAlpha=1; }
     if(level<=2 && time<7 && state==='play'){ const al=clamp((7-time)/1.5,0,1)*0.75; ctx.globalAlpha=al; ctx.fillStyle='#fff'; ctx.font='bold 15px "Trebuchet MS",sans-serif'; ctx.textAlign='center';
-      for(const [tx,tx2] of [['◀ ▶  dedo da esquerda: andar',SCRW*0.25],['dedo da direita: toque = pular ⤴',SCRW*0.75]]){ const tw=ctx.measureText(tx).width+28;
+      for(const [tx,tx2] of [['esquerda: arraste = andar ◀ ▶ · pra cima = pular',SCRW*0.25],['direita: deslize ⤴ = pular · toque = 💥',SCRW*0.75]]){ const tw=ctx.measureText(tx).width+28;
         ctx.fillStyle='rgba(30,8,40,.82)'; roundRect(ctx,tx2-tw/2,SCRH*0.62-21,tw,32,16); ctx.fill(); ctx.fillStyle='#fff'; ctx.fillText(tx,tx2,SCRH*0.62); }   // fundo escuro: dá pra ler em cima das plataformas
       ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.setLineDash([6,8]); ctx.beginPath(); ctx.moveTo(SCRW/2,SCRH*0.3); ctx.lineTo(SCRW/2,SCRH*0.85); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1; } }
-  if(joy){ ctx.globalAlpha=0.95; drawSpr(joySpr(),joy.ox,joy.oy); const kr=JOY_R*0.42;
+  if(joy&&joy.modo==='anda'){ ctx.globalAlpha=0.95; drawSpr(joySpr(),joy.ox,joy.oy); const kr=JOY_R*0.42;
     drawHeart(joy.x,joy.y-kr*1.05,kr*2.2,'#ff5d8f',true); ctx.globalAlpha=1; }
   qualityWork=performance.now()-workT0;
 }
@@ -2092,12 +2092,12 @@ function briefingCards(n){
       cards.push({icon:'🎩', big:'CORAÇÕES ESPECIAIS', sub:'Óculos = rápido · fantasma = atravessa tudo · boné = 2 toques · gravata = te empurra · coroa = vira 2 · cachecol = vale 2 · cartola verde = rouba 1 que você carrega!'}); }
   } else {
     if(!seen.love){ seen.love=1;
-      cards.push({icon:'💥', big:'EXPLODA DE AMOR', sub:'Segure '+K('ESPAÇO','o coração 💥 do canto')+' pra carregar e solte PERTO dos tristes (azuis). Quanto mais carregar, maior a explosão.'});
+      cards.push({icon:'💥', big:'EXPLODA DE AMOR', sub:(MOBILE?'Toque rápido em QUALQUER lugar da tela = explosão. Segure parado pra carregar e solte PERTO dos tristes (azuis). Arrastar não explode.':'Segure '+K('ESPAÇO','')+' pra carregar e solte PERTO dos tristes (azuis).')+' Quanto mais carregar, maior a explosão.'});
       cards.push({icon:'😱', big:'AMOR DEMAIS APERTA', sub:'Quem você apaixona corre atrás de você querendo abraço — se encostar, tira 1 ❤ de vida. Apaixonou? Siga em frente!'});
       cards.push({icon:'💔', big:'AMOR DEMAIS EXPLODE', sub:'Se você explodir de novo perto de um apaixonado, ele congela e em 3 s EXPLODE de amor. Isso é RUIM: ele vira só pedaços de coração e você perde energia. Melhor fugir dele.'});
       cards.push({icon:'🟩', big:'BLOCOS VERDE-ÁGUA', sub:'Exploda um: em 3 s ele cai e solta corações. Apaixonado que pega um para de te seguir, e os tristes por perto vão até eles.'});
       cards.push({icon:'💞', big:'PARA PASSAR', sub:'Apaixone TODOS os tristes. As setas na borda da tela mostram onde estão.'});
-    } else if((cfg.objetivo||'apaixonar')==='apaixonar') cards.push({icon:'💞', big:'APAIXONE OS '+npcs.filter(x=>x.state==='sad').length+' TRISTES', sub:'Segure '+K('ESPAÇO','o coração 💥')+' e solte perto deles.'});
+    } else if((cfg.objetivo||'apaixonar')==='apaixonar') cards.push({icon:'💞', big:'APAIXONE OS '+npcs.filter(x=>x.state==='sad').length+' TRISTES', sub:(MOBILE?'Toque (ou segure e solte) em qualquer lugar da tela':'Segure '+K('ESPAÇO',''))+' perto deles.'});
     if(monsters.length && !seen.mon){ seen.mon=1; cards.push({icon:'👹', big:'MONSTROS!', sub:'Encostar machuca. A explosão tira vida deles (barrinha em cima). Para passar: apaixone todos E derrote todos os monstros.'}); }
     const MK={ shooter:['🎯','ATIRADOR','Lança corações negros em você. Sua explosão destrói os que estiverem perto.'],
       dog:['🐕','CÃO SOMBRIO','Morde e te deixa mais lento por uns segundos (não tira vida).'],
@@ -2156,7 +2156,7 @@ function showTutorial(go){
   showScreen('<h1>Como jogar</h1>'+
     '<div class="tutGrid">'+
     '<div class="card"><div class="cardIcon">🎯</div><h3>Objetivo</h3><p>Transforme os <b class="blue">tristes</b> em <b class="pink">apaixonados</b> com a sua explosão de amor. Algumas fases são de <b>coleta</b>: pegue corações fujões e leve à <b>Máquina do Amor</b>.</p></div>'+
-    (MOBILE?'<div class="card"><div class="cardIcon">📱</div><h3>Controles</h3><p><b>Dois dedos:</b> o da <b>esquerda</b> arrasta pra andar ← →; o da <b>direita</b> toca pra <b>pular</b> (segure pra pular mais alto).<br>Coração <b>💥</b> no canto: segure e solte = explosão. ★ = um toque pra usar o poder, até no meio do pulo.</p></div>'
+    (MOBILE?'<div class="card"><div class="cardIcon">📱</div><h3>Controles</h3><p><b>Toque rápido em qualquer lugar = explosão 💥</b> (segure parado pra carregar e solte). <b>Esquerda:</b> arraste ← → pra andar, empurre pra cima pra pular, pra baixo = barreira. <b>Direita:</b> deslize pra cima pra <b>pular</b> (no ar, deslize de novo = duplo). Arrastar nunca explode. Botões ★ ⇄ = poderes.</p></div>'
           :'<div class="card"><div class="cardIcon">⌨️</div><h3>Controles</h3><p><kbd>←</kbd> <kbd>→</kbd> ou <kbd>A</kbd> <kbd>D</kbd> anda · <kbd>↑</kbd>/<kbd>W</kbd> pula (segure pra pular mais alto)<br><kbd>ESPAÇO</kbd> segure e solte = explosão · <kbd>P</kbd> pausa · <kbd>R</kbd> reinicia a fase</p></div>')+
     '<div class="card"><div class="cardIcon">⚡</div><h3>Energia</h3><p>A barra <b>ENERGIA</b> paga a explosão e os poderes e enche sozinha. A barra <b>AMOR</b> mostra a força da explosão enquanto você segura.</p></div>'+
     '<div class="card"><div class="cardIcon">🎁</div><h3>Poderes</h3><p>Você ganha poderes novos conforme avança (pulo duplo, barreira, disparo…). O jogo te explica cada um quando aparecer.</p></div>'+
@@ -2183,7 +2183,7 @@ function showMenu(){ state='menu';
   on('adv',()=>{ const go=()=>newGame('adventure'); tutorialShown?go():showTutorial(go); });
   on('inf',()=>{ const go=()=>newGame('infinite'); tutorialShown?go():showTutorial(go); });
 }
-function pauseGame(){ if(state!=='play') return; state='pause'; keys.left=keys.right=keys.jump=keys.charge=false; if(player){ player.charging=false; player.charge=0; } joy=null; jumpTouches.clear();
+function pauseGame(){ if(state!=='play') return; state='pause'; keys.left=keys.right=keys.jump=keys.charge=false; if(player){ player.charging=false; player.charge=0; } joy=null; jumpTouches.clear(); blastTouches.clear();
   showScreen('<div class="pauseIcon">⏸</div><h1>Pausa</h1><p class="hint">'+cfg.label+'</p>'+
     BTN('pres','CONTINUAR','',true)+BTN('pregras','REGRAS DESTA FASE','alt')+BTN('prst','REINICIAR FASE','alt')+BTN('pmenu','MENU','ghost')+BTN('pefx',OPC.reduz?'EFEITOS: REDUZIDOS':'REDUZIR FLASHES E TREMORES','ghost')+
     '<p class="hint">🎚️ Dificuldade ajustada: '+Math.round((IA.dados.ajuste||1)*100)+'%</p>'+
@@ -2247,7 +2247,7 @@ function setKey(e,down){ const k=(e.key||'').toLowerCase();
 window.addEventListener('keydown',e=>setKey(e,true));
 window.addEventListener('keyup',e=>setKey(e,false));
 // trocou de aba / perdeu o foco: solta todas as teclas e pausa (antes o boneco seguia correndo sozinho)
-function releaseAll(){ keys.left=keys.right=keys.jump=keys.charge=false; joy=null; jumpTouches.clear(); if(player){ player.charging=false; player.charge=0; } }
+function releaseAll(){ keys.left=keys.right=keys.jump=keys.charge=false; joy=null; jumpTouches.clear(); blastTouches.clear(); if(player){ player.charging=false; player.charge=0; } }
 window.addEventListener('blur',()=>{ releaseAll(); pauseGame(); });
 try{ document.addEventListener('visibilitychange',()=>{ if(document.hidden){ releaseAll(); pauseGame(); } }); }catch(e){}
 function bindTouch(id,onDown,onUp){ const el=document.getElementById(id); if(!el)return;
@@ -2256,15 +2256,30 @@ function bindTouch(id,onDown,onUp){ const el=document.getElementById(id); if(!el
   el.addEventListener('touchcancel',r,{passive:false});
   el.addEventListener('mousedown',p); el.addEventListener('mouseup',r); el.addEventListener('mouseleave',r); }
 
-// ===== entrada: toque (celular) — DOIS DEDOS =====
-// Metade ESQUERDA da tela: joystick (← → anda; puxar pra baixo = barreira 🧱).
-// Metade DIREITA: toque = pula (segurar = pulo mais alto; tocar de novo no ar = duplo/triplo).
-// Botões 💥 ★ ⇄ ✨ são toques simples e funcionam junto com os dois dedos (dá pra pular e usar poder ao mesmo tempo).
-let joy=null, jumpQueued=false; const jumpTouches=new Map();
-const JOY_R=60, JOY_DZ=12, JOY_DOWN=38;
+// ===== entrada: toque (celular) — DOIS DEDOS (v33, regra do doug 18/11) =====
+// EXPLOSÃO É UNIVERSAL: um toque rápido em QUALQUER lugar da tela explode (não depende de botão).
+//   segurar parado = CARREGA, soltar = explode (maior).
+// PULO = DESLIZAR PRA CIMA (o toque nunca é confundido com pulo):
+//   dedo da DIREITA: desliza pra cima = pula (manter o dedo = pulo mais alto; no ar, deslizar de novo = duplo/triplo).
+//   JOYSTICK (1º dedo da esquerda): arrastar ← → = anda; empurrar pra cima = pula; puxar pra baixo = barreira 🧱.
+//   Arrastar NUNCA explode (cancela a carga).
+// Botões ★ ⇄ ✨ ◎ » ficam para os PODERES (o 💥 do canto saiu do celular).
+let joy=null, jumpQueued=false; const jumpTouches=new Map();   // jumpTouches = dedos que não são o joystick (toque/carga/pulo)
+const JOY_R=60, JOY_DZ=12, JOY_DOWN=38, JOY_UP=30;
 function onCharge(){ if(state==='play') keys.charge=true; }
 function offCharge(){ if(keys.charge&&state==='play'&&player.charging&&player.stam>=player.blastCost) fireBlast();
   keys.charge=false; if(player){ player.charging=false; player.charge=0; } }
+// toque rápido (sem carga) também explode — carga mínima pra ter raio
+const TAP_CHARGE=0.15, HOLD_MS=170, MOVE_PX=14;
+function soltarExplosao(){ if(state==='play'&&player&&player.stam>=player.blastCost){ player.charge=Math.max(player.charge||0,TAP_CHARGE); fireBlast(); }
+  keys.charge=false; if(player){ player.charging=false; player.charge=0; } }
+function cancelarCarga(){ keys.charge=false; if(player){ player.charging=false; player.charge=0; } }
+var blastTouches=new Set();   // (compatibilidade) limpo no pause
+function algumCarregando(){ if(joy&&joy.modo==='carga') return true; for(const g of jumpTouches.values()) if(g.modo==='carga') return true; return false; }
+function algumSegurandoPulo(){ if(joy&&joy.upArm) return true; for(const g of jumpTouches.values()) if(g.modo==='pulo') return true; return false; }
+function pular(){ jumpQueued=true; keys.jump=true; }
+function soltouPulo(){ keys.jump=algumSegurandoPulo(); }
+function largouCarga(){ if(!algumCarregando()) cancelarCarga(); }
 bindTouch('bCharge', onCharge, offCharge);
 bindTouch('bPow', ()=>usePower(), ()=>{});
 bindTouch('bCyc', ()=>cyclePower(), ()=>{});
@@ -2277,12 +2292,15 @@ if(MOBILE){
   const wrap=document.getElementById('wrap');
   const onUI=t=>!!(t.target&&t.target.closest&&(t.target.closest('#touch')||t.target.closest('#overlay')||t.target.closest('button')));
   const esquerda=t=>t.clientX < (window.innerWidth||SCRW||800)*0.5;
+  // qualquer dedo começa "em espera": se soltar rápido = explode; se ficar parado = carrega
+  const armarCarga=(g)=>setTimeout(()=>{ if(g.modo==='espera'&&state==='play'&&(g===joy||jumpTouches.get(g.id)===g)){ g.modo='carga'; keys.charge=true; } }, HOLD_MS);
   wrap.addEventListener('touchstart',e=>{
     if(state!=='play') return;
     let used=false;
     for(const t of e.changedTouches){ if(onUI(t)) continue; used=true;
-      if(esquerda(t)){ if(!joy) joy={id:t.identifier, ox:t.clientX, oy:t.clientY, x:t.clientX, y:t.clientY, dnArm:false}; }
-      else { jumpTouches.set(t.identifier,{x:t.clientX,y:t.clientY}); jumpQueued=true; keys.jump=true; } }   // dedo direito: pula na hora
+      const g={id:t.identifier, ox:t.clientX, oy:t.clientY, x:t.clientX, y:t.clientY, modo:'espera', dnArm:false, upArm:false};
+      if(esquerda(t)&&!joy) joy=g; else jumpTouches.set(t.identifier,g);
+      armarCarga(g); }
     if(used) e.preventDefault();
   },{passive:false});
   wrap.addEventListener('touchmove',e=>{
@@ -2291,17 +2309,32 @@ if(MOBILE){
     for(const t of e.changedTouches){
       if(joy && t.identifier===joy.id){ used=true;
         let dx=t.clientX-joy.ox, dy=t.clientY-joy.oy; const m=Math.hypot(dx,dy);
+        if(joy.modo!=='anda'){ if(m<MOVE_PX) continue; const eraCarga=joy.modo==='carga'; joy.modo='anda'; if(eraCarga) largouCarga(); }   // arrastou: anda, não explode
         if(m>JOY_R){ dx*=JOY_R/m; dy*=JOY_R/m; }
         joy.x=joy.ox+dx; joy.y=joy.oy+dy;
         keys.left=dx<-JOY_DZ; keys.right=dx>JOY_DZ;
         if(dy> JOY_DOWN && Math.abs(dx)<JOY_DOWN){ if(!joy.dnArm){ placeWall(); joy.dnArm=true; } } else if(dy< JOY_DOWN*0.5){ joy.dnArm=false; }
-      } else if(jumpTouches.has(t.identifier)){ used=true; const j=jumpTouches.get(t.identifier); j.x=t.clientX; j.y=t.clientY; }
+        if(dy< -JOY_UP){ if(!joy.upArm){ joy.upArm=true; pular(); } } else if(dy> -JOY_UP*0.5 && joy.upArm){ joy.upArm=false; soltouPulo(); }   // joystick pra cima = pulo
+      } else if(jumpTouches.has(t.identifier)){ used=true; const g=jumpTouches.get(t.identifier);
+        const DX=t.clientX-g.ox, DY=t.clientY-g.oy;
+        if(g.modo==='espera'||g.modo==='carga'){
+          if(Math.hypot(DX,DY)>=MOVE_PX){ const eraCarga=g.modo==='carga';
+            if(DY<0 && -DY>=Math.abs(DX)*0.7){ g.modo='pulo'; pular(); } else g.modo='nada';   // deslizou pra cima = pula; outro arrasto = nada
+            if(eraCarga) largouCarga(); g.oy=t.clientY; } }
+        else if(g.modo==='pulo'){ if(t.clientY-g.oy>MOVE_PX*1.5){ g.modo='nada'; g.oy=t.clientY; soltouPulo(); } else g.oy=Math.min(g.oy,t.clientY); }   // desceu o dedo: solta o pulo
+        else if(g.modo==='nada'){ if(g.oy-t.clientY>=MOVE_PX){ g.modo='pulo'; pular(); g.oy=t.clientY; } else g.oy=Math.max(g.oy,t.clientY); }   // subiu de novo (duplo/triplo sem tirar o dedo)
+        g.x=t.clientX; g.y=t.clientY; }
     }
     if(used) e.preventDefault();
   },{passive:false});
-  const endTouch=e=>{ for(const t of e.changedTouches){
-      if(joy && t.identifier===joy.id){ joy=null; keys.left=keys.right=false; }
-      if(jumpTouches.delete(t.identifier)) keys.jump=jumpTouches.size>0; } };
+  const endTouch=e=>{ const fim=e.type==='touchend'&&state==='play';
+    for(const t of e.changedTouches){
+      let g=null;
+      if(joy && t.identifier===joy.id){ g=joy; joy=null; keys.left=keys.right=false; }
+      else if(jumpTouches.has(t.identifier)){ g=jumpTouches.get(t.identifier); jumpTouches.delete(t.identifier); }
+      if(!g) continue;
+      if(g.modo==='espera'||g.modo==='carga'){ if(fim) soltarExplosao(); else largouCarga(); }   // toque/segurar sem arrastar = EXPLODE
+      soltouPulo(); } };
   wrap.addEventListener('touchend',endTouch,{passive:false});
   wrap.addEventListener('touchcancel',endTouch,{passive:false});
 }
